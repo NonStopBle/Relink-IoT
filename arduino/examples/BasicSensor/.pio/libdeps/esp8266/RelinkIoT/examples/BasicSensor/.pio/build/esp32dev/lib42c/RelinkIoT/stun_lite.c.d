@@ -1,0 +1,24 @@
+.pio/build/esp32dev/lib42c/RelinkIoT/stun_lite.c.o: \
+ .pio/libdeps/esp32dev/RelinkIoT/src/stun_lite.c \
+ .pio/libdeps/esp32dev/RelinkIoT/src/webrtc_lite_config.h \
+ .pio/libdeps/esp32dev/RelinkIoT/src/stun_lite.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/mbedtls/mbedtls/include/mbedtls/md.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/mbedtls/mbedtls/include/mbedtls/private_access.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/mbedtls/mbedtls/include/mbedtls/build_info.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/mbedtls/port/include/mbedtls/esp_config.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/mbedtls/mbedtls/include/mbedtls/mbedtls_config.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/soc/esp32/include/soc/soc_caps.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/mbedtls/port/include/esp_mem.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/mbedtls/mbedtls/include/mbedtls/config_psa.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/mbedtls/mbedtls/include/psa/crypto_legacy.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/mbedtls/mbedtls/include/psa/crypto_adjust_config_synonyms.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/mbedtls/mbedtls/include/psa/crypto_adjust_config_dependencies.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/mbedtls/mbedtls/include/mbedtls/config_adjust_psa_superset_legacy.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/mbedtls/mbedtls/include/mbedtls/config_adjust_psa_from_legacy.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/mbedtls/mbedtls/include/psa/crypto_adjust_config_key_pair_types.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/mbedtls/mbedtls/include/psa/crypto_adjust_auto_enabled.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/mbedtls/mbedtls/include/mbedtls/config_adjust_legacy_crypto.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/mbedtls/mbedtls/include/mbedtls/config_adjust_x509.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/mbedtls/mbedtls/include/mbedtls/config_adjust_ssl.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/mbedtls/mbedtls/include/mbedtls/check_config.h \
+ /home/thinkpad/.platformio/packages/framework-arduinoespressif32-libs/esp32/include/mbedtls/mbedtls/include/mbedtls/platform_util.h
