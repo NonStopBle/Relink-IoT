@@ -6,6 +6,11 @@
  *                   V2 Float   -> any control (printed)
  * Board:            ESP32 or ESP8266
  * You'll see:       A0 voltage on the dashboard; moving the Slider dims the LED.
+ * Flash (ESP32):    use the bigger OTA partition table (WebRTC on 53% instead of 83%):
+ *                   Arduino IDE: copy RelinkIoT/partitions/relink_4mb_ota.csv here as
+ *                   partitions.csv, and Tools > Partition Scheme > Minimal SPIFFS.
+ *                   PlatformIO: board_build.partitions. First upload over USB.
+ *                   See "ESP32 flash size" in the README.
  */
 
 #ifdef ESP8266
@@ -20,7 +25,7 @@
 #define WIFI_PASS     "YourPassword"
 #define DEVICE_TOKEN  "your-device-token-here"
 #define DEVICE_ENC_KEY "your-64-hex-char-key"   // from the device page; "" = no encryption
-#define RELINK_SERVER "relink-iot.com"
+#define SERVER_IP     "192.168.1.100"
 #define SERVER_PORT   7445
 
 // ── 2. WiFi: the sketch connects, Relink follows (registers on IP, pauses on drop) ──
@@ -68,7 +73,7 @@ void setup() {
 
     Relink.setDebug(true);
     startWiFi();
-    Relink.begin(DEVICE_TOKEN, DEVICE_ENC_KEY, RELINK_SERVER, SERVER_PORT);
+    Relink.begin(DEVICE_TOKEN, DEVICE_ENC_KEY, SERVER_IP, SERVER_PORT);
 
     Relink.onRegistered([]() {
         Serial.println("[relink] device registered — sending data");

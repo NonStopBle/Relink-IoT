@@ -6,6 +6,11 @@
  * Use it when:      you need a static IP, WiFiManager or your own reconnect logic.
  *                   No Relink.config(): Relink registers whenever WiFi has an IP,
  *                   pauses on a drop and re-registers by itself.
+ * Flash (ESP32):    use the bigger OTA partition table (WebRTC on 53% instead of 83%):
+ *                   Arduino IDE: copy RelinkIoT/partitions/relink_4mb_ota.csv here as
+ *                   partitions.csv, and Tools > Partition Scheme > Minimal SPIFFS.
+ *                   PlatformIO: board_build.partitions. First upload over USB.
+ *                   See "ESP32 flash size" in the README.
  */
 
 #ifdef ESP8266
@@ -21,7 +26,7 @@ const char* WIFI_PASS = "YourPassword";
 
 #define DEVICE_TOKEN   "your-device-token-here"
 #define DEVICE_ENC_KEY "your-64-hex-char-key"   // from the device page; "" = no encryption
-#define RELINK_SERVER  "relink-iot.com"
+#define SERVER_IP      "192.168.96.50"
 
 #ifdef ESP8266
 // ESP8266: handlers live only as long as these objects -- keep them global.
@@ -71,7 +76,7 @@ void setup() {
     // No Relink.config(): Relink follows whatever WiFi state the sketch sets up.
     Relink.onRegistered([]() { Serial.println("[relink] registered"); });
     Relink.onDisconnect([]() { Serial.println("[relink] paused, waiting for WiFi"); });
-    Relink.begin(DEVICE_TOKEN, DEVICE_ENC_KEY, RELINK_SERVER);   // returns immediately
+    Relink.begin(DEVICE_TOKEN, DEVICE_ENC_KEY, SERVER_IP);   // returns immediately
 }
 
 void loop() {

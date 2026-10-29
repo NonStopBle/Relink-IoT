@@ -5,135 +5,146 @@
 <h1 align="center">Relink IoT Libraries</h1>
 
 <p align="center">
-  Connect devices, applications, and dashboards through one simple IoT platform.
+  <b>Connect anything.</b> ESP32, ESP8266, Raspberry Pi, servers, and Python scripts —
+  one set of virtual pins, one live dashboard.
 </p>
 
 <p align="center">
-  <a href="https://github.com/NonStopBle/Relink-IoT">GitHub</a> ·
-  <a href="https://relink-iot.com">Relink IoT</a> ·
-  <a href="#quick-start-copy-paste-run">Quick start</a>
+  <a href="https://relink-iot.com">Website</a> ·
+  <a href="#quick-start">Quick start</a> ·
+  <a href="#examples">Examples</a> ·
+  <a href="#api-at-a-glance">API</a> ·
+  <a href="#troubleshooting">Troubleshooting</a>
 </p>
 
-Relink IoT connects ESP32 and ESP8266 devices with Python applications, C++ services,
-Raspberry Pi systems, and real-time web dashboards. Monitor sensors, control hardware,
-stream camera data, and build connected products using shared virtual pins.
+---
 
-Production client libraries for connecting Arduino devices, C++ applications, and
-Python programs to the Relink IoT platform.
+## What is Relink IoT?
 
-The production server is **`relink-iot.com`**. Use this hostname in new projects and
-examples. Do not replace it with a local IP address unless you are developing against
-a private Relink server.
+Relink IoT links your hardware and software to a real-time web dashboard at
+**[relink-iot.com](https://relink-iot.com)**. Every program that uses the same device
+token shares **virtual pins** (`V0`, `V1`, …). A write from any of them reaches the
+others and the dashboard.
 
-| Folder | For | Install |
-|---|---|---|
-| `arduino/RelinkIoT` | ESP32 / ESP8266 firmware (Arduino, PlatformIO) | Arduino IDE: install the ZIP or copy the library; PlatformIO: add the local library and `rweather/Crypto` |
-| `cpp` | PCs, Raspberry Pi, servers (Linux/macOS, OpenSSL + zlib) | `cmake -S relink_lib/cpp -B relink_lib/cpp/build && cmake --build relink_lib/cpp/build`; precompiled: `cpp/build_lib.sh` → `cpp/export/relink/` (`find_package(relink)`) |
-| `python` | Same, from Python 3 (`from relink_iot import Relink`) | `pip install ./relink_lib/python`; precompiled: `python/build_lib.sh` → `pip install python/export/relink_iot-*.whl` |
+```
+  ESP32 sensor ──┐                       ┌── Web dashboard (phone / PC)
+                 ├──  relink-iot.com  ───┤
+  Python script ─┤   (or direct P2P)     └── C++ service on a Raspberry Pi
+```
 
-Every program that uses the same device token -- the ESP32, a C++ service, a Python
-script -- shares one set of virtual pins: a write from any of them reaches the others
-and the dashboard.
+- **Encrypted** end to end with your device key (ChaCha20-Poly1305).
+- **Direct P2P** between devices when the network allows it, with automatic relay fallback.
+- **OTA firmware updates** from the dashboard.
+- **Live camera streaming** on supported ESP32 camera boards.
+- **Same API in three languages:** Arduino, C++, and Python.
 
-> **ESP8266 status:** the library and examples build for ESP8266 (NodeMCU v2), but it has
-> not been tested on a real board yet. ESP32 is tested on hardware.
+## Download
 
-## Quick start (copy, paste, run)
+| Library | Folder | Runs on | File |
+|---|---|---|---|
+| **Arduino** | [`arduino/`](arduino) | ESP32, ESP32-S2/S3/C3/C5/C6/P4, ESP8266 | `arduino/RelinkIoT-1.0.2.zip` |
+| **C++** | [`cpp/`](cpp) | Linux x86_64 (OpenSSL + zlib) | `cpp/relink-1.0.2-linux-x86_64.tar.gz` |
+| **Python** | [`python/`](python) | Linux x86_64, Python 3.12 | `python/relink_iot-1.0.2-cp312-cp312-linux_x86_64.whl` |
 
-**1. On the dashboard:** open your device, then *Datastreams* and add **V0** (Float) and **V1** (Integer).
-Add a *Label* widget on V0 and a *Toggle* widget on V1.
+> The libraries are precompiled. The C++ and Python builds are currently for
+> **Linux x86_64 only**, and the Python wheel for **Python 3.12 only**. Raspberry Pi
+> (arm64) and macOS builds are coming.
+> **ESP8266:** builds and runs the examples, but hasn't been tested on a real board yet.
+> ESP32 is tested on hardware.
+
+## Quick start
+
+**1. Create a device** on [relink-iot.com](https://relink-iot.com). Open it, then go to
+*Datastreams* and add **V0** (Float) and **V1** (Integer).
+Add a **Label** widget on V0 and a **Toggle** widget on V1.
 
 **2. Copy the token and key** from the device page.
 
-**3. Run one of these.** Each one sends a number to V0 and prints whatever the dashboard writes to V1.
+**3. Pick your platform.** Each one sends a number to V0 and prints whatever the
+dashboard writes to V1.
 
-<details open><summary><b>Python</b></summary>
+<details open><summary><b>Arduino (ESP32 / ESP8266)</b></summary>
+
+1. Download `arduino/RelinkIoT-1.0.2.zip`.
+2. In the Arduino IDE: *Sketch → Include Library → Add .ZIP Library…* and pick the zip.
+3. Open *File → Examples → RelinkIoT → BasicSensor*.
+4. Fill in your Wi-Fi, token, and key, then upload.
+
+**PlatformIO** (`platformio.ini`):
+
+```ini
+lib_deps = https://github.com/NonStopBle/Relink-IoT/raw/main/arduino/RelinkIoT-1.0.2.zip
+```
+
+No other libraries are needed: the crypto code is already linked in.
+</details>
+
+<details><summary><b>Python</b></summary>
 
 ```bash
-pip install ./relink_lib/python
+git clone https://github.com/NonStopBle/Relink-IoT.git && cd Relink-IoT
+pip install python/relink_iot-*.whl                 # pulls in `cryptography`
+
 export RELINK_TOKEN=your-token RELINK_KEY=your-key RELINK_SERVER=relink-iot.com
-python3 relink_lib/python/examples/basic.py
+python3 python/examples/basic.py
 ```
 </details>
 
-<details><summary><b>C++ (Linux / macOS / Raspberry Pi)</b></summary>
+<details><summary><b>C++ (Linux)</b></summary>
 
 ```bash
-cmake -S relink_lib/cpp -B relink_lib/cpp/build && cmake --build relink_lib/cpp/build
+sudo apt install build-essential cmake libssl-dev zlib1g-dev
+git clone https://github.com/NonStopBle/Relink-IoT.git && cd Relink-IoT
+
+cmake -S cpp/relink/examples -B build && cmake --build build
 export RELINK_TOKEN=your-token RELINK_KEY=your-key RELINK_SERVER=relink-iot.com
-relink_lib/cpp/build/relink_basic
+./build/relink_basic
+```
+
+To use it in your own CMake project:
+
+```cmake
+set(relink_DIR /path/to/Relink-IoT/cpp/relink/lib/cmake/relink)
+find_package(relink REQUIRED)
+target_link_libraries(my_app relink::relink)   # -DRELINK_STATIC=ON links librelink.a
 ```
 </details>
 
-<details><summary><b>Arduino (ESP32)</b></summary>
+**4. Check it works:** the Label shows the value. Flip the Toggle and the new V1 value
+appears in the terminal or Serial Monitor.
 
-1. Install `arduino/Relink-IoT-1.0.0_Arduino.zip` through *Sketch → Include Library → Add .ZIP Library*.
-2. Open *File → Examples → RelinkIoT → BasicSensor*.
-3. Fill in Wi-Fi, token, key, and server settings. Keep the server as `relink-iot.com`.
-4. Install `rweather/Crypto` if the IDE asks for the dependency, then upload.
-</details>
+> Keep the server as **`relink-iot.com`**. Only change it if you run your own Relink server.
 
-**4. Check it works:** the Label shows the value, and flipping the Toggle prints the new V1 value in the terminal or Serial monitor.
+## Examples
 
-### Pick an example
+All three libraries ship the same examples, so you can mix and match. For example, an
+ESP32 running `ByteArray` can talk to `bytes.py` on a PC.
 
 | I want to… | Arduino | C++ | Python | Datastreams to add |
 |---|---|---|---|---|
 | Send a value and react to a button | `BasicSensor` | `basic.cpp` | `basic.py` | V0 Float, V1 Integer |
 | See everything other programs write | `Listen` | `listen.cpp` | `listen.py` | any |
 | Send packed sensor records or raw bytes | `ByteArray` | `bytes.cpp` | `bytes.py` | V2, V3 ByteArray |
-| Stream a live camera (P2P) | `CameraStream` | `camera.cpp` | `camera.py` | V10 Camera, V11 ByteArray |
+| Stream a live camera (P2P) | `CameraStream` (sends) | `camera.cpp` (receives) | `camera.py` (receives) | V10 Camera, V11 ByteArray |
 | Show the camera in an OpenGL window | `CameraStream` | `camera_gl.cpp` (freeglut + libjpeg) | `camera_gl.py` (`pip install glfw PyOpenGL`) | V10 Camera, V11 ByteArray |
-| Handle WiFi myself | `WiFiEvents` | -- | -- | V0 |
-| Let Relink handle WiFi (`Relink.config`) | `RelinkConfig` | -- | -- | V0, V1 |
+| Handle Wi-Fi myself | `WiFiEvents` | — | — | V0 |
+| Let Relink handle Wi-Fi | `RelinkConfig` | — | — | V0, V1 |
 
-## Examples (details)
+Every example is laid out the same way. A header says which datastreams to add and
+what you'll see, then the code runs **1. settings → 2. connect → 3. handlers → 4. loop**.
 
-Every library has the same set, so each side of a pair is in the matching folder.
+- **Arduino:** settings are `#define`s at the top of each sketch.
+- **C++:** settings are in `cpp/relink/examples/settings.hpp`.
+- **Python:** settings are at the top of each file.
+- In C++ and Python, the `RELINK_TOKEN`, `RELINK_KEY`, and `RELINK_SERVER` environment
+  variables override them.
 
-| Example | Arduino (`arduino/RelinkIoT/examples`) | C++ (`cpp/examples`) | Python (`python/examples`) |
-|---|---|---|---|
-| Write V0, react to V1 | `BasicSensor` | `basic.cpp` | `basic.py` |
-| Show everything others write | `Listen` | `listen.cpp` | `listen.py` |
-| ByteArray: packed record on V2, raw bytes on V3 | `ByteArray` | `bytes.cpp` | `bytes.py` |
-| Live camera, P2P only (V0 Camera, V1 ByteArray settings) | `CameraStream` (sends; needs `RELINK_CAMERA_STREAM`) | `camera.cpp` (receives) | `camera.py` (receives) |
-| WiFi handled by the sketch | `WiFiEvents` | -- | -- |
-| WiFi handled by Relink (`Relink.config`) | `RelinkConfig` | -- | -- |
+**Value types:** int, float, text, and ByteArray (raw bytes: up to 58 from an ESP32,
+255 from C++/Python). They match the datastream types on the dashboard.
 
-Every example starts the same way: a header saying which datastreams to add and what
-you'll see, then **1. settings → 2. connect → 3. handlers → 4. loop**. Settings: Python
-has them at the top of each file, C++ in `cpp/examples/settings.hpp`, Arduino as
-`#define`s at the top of each sketch. In Python and C++, the `RELINK_TOKEN`, `RELINK_KEY`
-and `RELINK_SERVER` environment variables override them.
+## API at a glance
 
-Value types: int, float, text and ByteArray (raw bytes, up to 58 from an ESP32 and 255
-from C++/Python) -- matching the datastream types on the dashboard.
-
-## Arduino quick guide
-
-The Arduino examples are complete sketches. Start with `BasicSensor` if this is your
-first project, then try `Listen`, `ByteArray`, or `CameraStream`.
-
-### Common Arduino settings
-
-At the top of each sketch, replace only your Wi-Fi credentials and device credentials:
-
-```cpp
-#define WIFI_SSID       "YourWiFiName"
-#define WIFI_PASS       "YourWiFiPassword"
-#define DEVICE_TOKEN    "paste-token-from-device-page"
-#define DEVICE_ENC_KEY  "paste-64-hex-character-key"
-#define RELINK_SERVER   "relink-iot.com"
-```
-
-The encryption key is the 64-character hexadecimal key from the device page. Use an
-empty string (`""`) only for a local test without encryption. Never commit real
-credentials to GitHub.
-
-### BasicSensor: read a sensor and control an LED
-
-Dashboard setup: `V0` Float, `V1` Integer, and `V2` Float. Add a Label or Gauge on
-`V0` and a Slider from 0 to 255 on `V1`.
+<details open><summary><b>Arduino</b></summary>
 
 ```cpp
 #include <WiFi.h>
@@ -146,97 +157,79 @@ Dashboard setup: `V0` Float, `V1` Integer, and `V2` Float. Add a Label or Gauge 
 #define RELINK_SERVER   "relink-iot.com"
 #define LED_PIN         2
 
-RELINK_WRITE(V1) {
+RELINK_WRITE(V1) {                       // called when V1 changes
   analogWrite(LED_PIN, constrain(param.asInt(), 0, 255));
 }
 
 void setup() {
   Serial.begin(115200);
   pinMode(LED_PIN, OUTPUT);
-  Relink.config(WIFI_SSID, WIFI_PASS);
+  Relink.config(WIFI_SSID, WIFI_PASS);   // let Relink connect / reconnect Wi-Fi
   Relink.begin(DEVICE_TOKEN, DEVICE_ENC_KEY, RELINK_SERVER);
 }
 
 void loop() {
-  Relink.run();
-  static unsigned long lastSend = 0;
-  if (millis() - lastSend >= 1000) {
-    lastSend = millis();
+  Relink.run();                          // keep this running: no long delay()
+  static unsigned long last = 0;
+  if (millis() - last >= 1000) {
+    last = millis();
     Relink.virtualWrite(V0, analogRead(A0));
   }
 }
 ```
 
-`Relink.run()` must execute continuously so the device can receive dashboard updates.
-Avoid long delays in `loop()`.
+- Raw bytes: `uint8_t rec[] = {10, 20, 30, 1}; Relink.virtualWrite(V2, rec, sizeof(rec));`
+- Your own Wi-Fi (static IP, WiFiManager…): skip `Relink.config()`, see `WiFiEvents`.
+- Camera: `CameraStream`. Set your board's pins in `camera_pins.h`.
+</details>
 
-### Listen: print values received by the device
-
-Use `arduino/examples/Listen/Listen.ino` to see values written by the dashboard, a
-Python script, or a C++ service:
-
-```cpp
-RELINK_WRITE(V1) {
-  Serial.printf("V1 = %d\\n", param.asInt());
-}
-```
-
-Add matching datastreams for `V0` Float, `V1` Integer, `V2` String, and `V3` ByteArray.
-
-### ByteArray: send compact sensor records
-
-Create `V2` and `V3` as ByteArray datastreams. The example packs several readings into
-one message and prints incoming bytes as hexadecimal:
-
-```cpp
-uint8_t record[] = { 10, 20, 30, 1 };
-Relink.virtualWrite(V2, record, sizeof(record));
-```
-
-Open `arduino/examples/ByteArray/ByteArray.ino` for the complete repeating example.
-
-### Wi-Fi options
-
-- **RelinkConfig**: use `Relink.config(WIFI_SSID, WIFI_PASS)` and let Relink connect
-  and reconnect Wi-Fi automatically.
-- **WiFiEvents**: manage Wi-Fi yourself for static IPs, WiFiManager, or custom logic;
-  omit `Relink.config()`.
-
-### CameraStream
-
-On supported ESP32 camera boards, use `arduino/examples/CameraStream/CameraStream.ino`.
-Add `V10` as Camera and `V11` as ByteArray, then configure the board pins in
-`camera_pins.h`. Camera frames use the direct peer-to-peer path.
-
-## Python
-
-```bash
-pip install ./relink_lib/python          # needs `cryptography`
-```
+<details><summary><b>Python</b></summary>
 
 ```python
 from relink_iot import Relink
-r = Relink(TOKEN, ENC_KEY, "relink-iot.com")    # ENC_KEY "" = unencrypted
+
+r = Relink(TOKEN, ENC_KEY, "relink-iot.com")
 
 @r.on_pin(1)
-def led(v): print("V1 =", v)
+def led(v):
+    print("V1 =", v)
 
-r.start()                  # background thread; or call r.run() from your own loop
+r.start()                  # background thread, or call r.run() from your own loop
 r.virtual_write(0, 21.5)   # writes made between ticks are batched into one packet
 print(r.peers())           # {instance: 'p2p' | 'relay'}
 ```
+</details>
 
-## C++ (Linux/macOS, OpenSSL + zlib)
-
-```bash
-cmake -S relink_lib/cpp -B relink_lib/cpp/build && cmake --build relink_lib/cpp/build
-```
+<details><summary><b>C++</b></summary>
 
 ```cpp
 #include <relink/relink.hpp>
+
 relink::Client r(TOKEN, ENC_KEY, "relink-iot.com");
-r.onPin(1, [](const relink::Value& v) { printf("%d\n", v.asInt()); });
+r.onPin(1, [](const relink::Value& v) { printf("V1 = %d\n", v.asInt()); });
 r.start();
 r.virtualWrite(0, 21.5f);
 ```
+</details>
 
+## Troubleshooting
+
+| Problem | Check |
+|---|---|
+| Device never shows online | Token and key copied exactly (the key is 64 hex characters); `RELINK_SERVER` is `relink-iot.com`; the network allows outgoing UDP |
+| Dashboard writes don't arrive | `Relink.run()` is called continuously, with no long `delay()` in `loop()`; the datastream exists for that pin |
+| Values show the wrong type | The datastream type (Integer / Float / String / ByteArray) matches what you write |
+| `pip` says the wheel is "not supported" | The wheel is for Python 3.12 on Linux x86_64; check `python3 --version` and `uname -m` |
+| C++: `find_package(relink)` fails | `relink_DIR` points at `cpp/relink/lib/cmake/relink`, and `libssl-dev` and `zlib1g-dev` are installed |
+| Camera shows nothing | `CameraStream` is on a supported ESP32 camera board, with V10 Camera and V11 ByteArray added |
+
+## Security
+
+Never commit real tokens or keys to Git. An empty key (`""`) disables encryption and
+is only for local testing.
+
+---
+
+<p align="center">
+  Created by <b>Rezier Labs</b> · <a href="https://relink-iot.com">relink-iot.com</a>
+</p>
