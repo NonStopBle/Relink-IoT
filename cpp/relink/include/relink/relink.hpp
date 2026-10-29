@@ -48,8 +48,8 @@ public:
     // jpeg points into the reassembly buffer and is valid only during the call.
     using CameraHandler = std::function<void(const uint8_t* jpeg, size_t len, uint16_t frameId)>;
 
-    // encKeyHex: the device's 64-hex-char key, or "" for unencrypted (the
-    // device must then allow unencrypted mode in the dashboard). Peer-to-peer mesh
+    // encKeyHex: the device's 64-hex-char key, or "" for plaintext (the
+    // device must then allow plaintext in the dashboard). Peer-to-peer mesh
     // needs encryption.
     Client(std::string token, std::string encKeyHex, std::string server,
            uint16_t port = 7445, bool mesh = true);
@@ -122,8 +122,12 @@ private:
     sockaddr_in server_{};
     uint32_t device_id_ = 0;
     uint8_t  key_[32]{};
+    bool      api_synced_ = false;   // server clock offset known (signed API calls)
+    long long api_offset_ = 0;
     bool     secure_ = false, mesh_ = true, debug_ = false;
     uint16_t instance_ = 0;
+    uint64_t relay_nonce_ = 0;   // last sealed downlink taken from the relay
+    std::atomic<uint32_t> salt_{0};   // relay session salt ('Y'), 0 = none yet (S6)
     uint64_t ctr_ = 0;
     int      fd_ = -1;
     std::string lan_;

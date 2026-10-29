@@ -6,6 +6,11 @@
  * Board:            ESP32 or ESP8266
  * Sends:            V2 = [ax int16][ay int16][az int16][status uint8], every 200 ms
  * You'll see:       bytes written to V3 printed as hex in the Serial monitor.
+ * Flash (ESP32):    use the bigger OTA partition table (WebRTC on 53% instead of 83%):
+ *                   Arduino IDE: copy RelinkIoT/partitions/relink_4mb_ota.csv here as
+ *                   partitions.csv, and Tools > Partition Scheme > Minimal SPIFFS.
+ *                   PlatformIO: board_build.partitions. First upload over USB.
+ *                   See "ESP32 flash size" in the README.
  */
 
 #ifdef ESP8266
@@ -20,7 +25,7 @@
 #define WIFI_PASS      "YourPassword"
 #define DEVICE_TOKEN   "your-device-token-here"
 #define DEVICE_ENC_KEY "your-64-hex-char-key"   // from the device page; "" = no encryption
-#define RELINK_SERVER  "relink-iot.com"
+#define SERVER_IP      "192.168.1.100"
 
 // ── 2. WiFi: the sketch connects, Relink follows (registers on IP, pauses on drop) ──
 #ifdef ESP8266
@@ -64,7 +69,7 @@ void setup() {
     Serial.begin(115200);
     Relink.setDebug(true);
     startWiFi();
-    Relink.begin(DEVICE_TOKEN, DEVICE_ENC_KEY, RELINK_SERVER);
+    Relink.begin(DEVICE_TOKEN, DEVICE_ENC_KEY, SERVER_IP);
 
 }
 

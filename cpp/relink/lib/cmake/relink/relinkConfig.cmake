@@ -1,4 +1,4 @@
-# relink 0.1.0, precompiled for linux-x86_64
+# relink 1.0.2, precompiled for linux-x86_64
 include(CMakeFindDependencyMacro)
 find_dependency(OpenSSL)
 find_dependency(ZLIB)
@@ -18,4 +18,4 @@ if(NOT TARGET relink::relink)
     INTERFACE_LINK_LIBRARIES "OpenSSL::Crypto;ZLIB::ZLIB;Threads::Threads"
     INTERFACE_COMPILE_FEATURES cxx_std_17)
 endif()
-set(relink_VERSION 0.1.0)
+set(relink_VERSION 1.0.2)

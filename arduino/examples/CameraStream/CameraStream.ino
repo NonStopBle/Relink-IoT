@@ -7,6 +7,8 @@
  *                   or "Enabled" (ESP32-CAM). Without it the camera fails with
  *                   "frame buffer malloc failed".
  * Build flag:       -DRELINK_CAMERA_STREAM  (see "Needs" below)
+ * Flash:            XIAO ESP32S3 (8 MB): default table is fine. ESP32-CAM (4 MB): use
+ *                   RelinkIoT/partitions/relink_4mb_ota.csv, see "ESP32 flash size" in the README.
  * You'll see:       the video in the Live Camera widget, and in camera.py / relink_camera.
  *
  * ── How it works ──
@@ -48,7 +50,7 @@
 #define WIFI_PASS       "your-password"
 #define DEVICE_TOKEN    "your-device-token"
 #define DEVICE_ENC_KEY  "your-64-hex-char-key"
-#define RELINK_SERVER   "relink-iot.com"
+#define SERVER_IP       "192.168.1.10"
 
 // ── 2. WiFi: the sketch connects, Relink follows (registers on IP, pauses on drop) ──
 void startWiFi() {
@@ -109,7 +111,7 @@ void setup() {
 
     Relink.setDebug(true);
     startWiFi();
-    Relink.begin(DEVICE_TOKEN, DEVICE_ENC_KEY, RELINK_SERVER);
+    Relink.begin(DEVICE_TOKEN, DEVICE_ENC_KEY, SERVER_IP);
 }
 
 void loop() {

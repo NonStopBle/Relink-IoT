@@ -66,7 +66,7 @@ public:
     // Connect and start -- call in setup(). encKeyHex is the 64-hex-char key
     // from the device page; blank ("" / nullptr) = no encryption.
     void begin(const char* token, const char* encKeyHex, const char* server, uint16_t port = 7445);
-    // Legacy form: unencrypted unless enableEncryption() was called first.
+    // Legacy form: plaintext unless enableEncryption() was called first.
     void begin(const char* token, const char* server, uint16_t port = 7445);
 
     // Sends the pending virtualWrite() batch now instead of at the next run().
