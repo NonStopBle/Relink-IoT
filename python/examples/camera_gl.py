@@ -7,7 +7,7 @@ Run:              python3 camera_gl.py            # Esc or q quits
                   python3 camera_gl.py 20         # quit after 20 s (prints stats)
 You'll see:       the video drawn as a GL texture, and "15.0 fps ..." in the title and terminal.
 """
-import os, sys, threading, time
+import sys, threading, time
 import cv2
 import glfw
 import numpy as np
@@ -15,9 +15,9 @@ from OpenGL import GL
 from relink_iot import Relink
 
 # ── 1. Your settings ──
-TOKEN  = os.environ.get("RELINK_TOKEN",  "xW70sxgsD5dUwVbUAWwa6CRSUycSlajF")
-KEY    = os.environ.get("RELINK_KEY",    "0f5a1815f63434deb74a2136c8b938db9008b1fc24e0b88630dd01a78cb92cd3")              # camera needs encryption (P2P mesh)
-SERVER = os.environ.get("RELINK_SERVER", "192.168.10.165")
+TOKEN  = "your-device-token"
+KEY    = ""              # camera needs encryption (P2P mesh)
+SERVER = "relink-iot.com"
 STREAM_PIN = 10
 SECONDS = float(sys.argv[1]) if len(sys.argv) > 1 else float("inf")
 

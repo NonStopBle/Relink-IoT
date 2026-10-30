@@ -99,13 +99,14 @@ private:
         sockaddr_in addr{};
         bool has_addr = false;
         double last_rx = 0, last_hello = 0;
+        double since = -1;      // first listed by the relay (hello priming window)
         bool gateway = false;   // its hello says a P2P browser gets our writes through it
         bool up(double now) const { return has_addr && now - last_rx < 5.0; }
     };
 
     void queue(std::string entry);
-    void sendEnc(const std::string& inner, const sockaddr_in& to);
-    void sendRaw(const std::string& b, const sockaddr_in& to);
+    void sendEnc(const std::string& inner, const sockaddr_in& to, int ttl = 0);
+    void sendRaw(const std::string& b, const sockaddr_in& to, int ttl = 0);
     void doRegister();
     void sendLinks(bool force);
     void addSummary(uint8_t pin, float v);
@@ -159,6 +160,7 @@ private:
     std::vector<uint16_t> last_links_;
     struct PinSum { uint32_t n = 0; float mn = 0, mx = 0, sum = 0, last = 0; };
     uint16_t relay_hz_ = RELAY_HZ_DEFAULT; // from the relay's peer list, under mu_ (0 = no limit)
+    bool relay_off_ = false;               // same list: no relay copy while all peers are direct
     std::map<uint8_t, std::string> relay_tx_;   // latest entry per pin for the relay, under mu_
     std::map<uint8_t, PinSum> sum_;      // 1-minute history summary ('M'), under mu_
 

@@ -5,13 +5,13 @@ Dashboard setup:  V0 Float  -> Label or Gauge widget
 Run:              python3 basic.py
 You'll see:       V0 moving on the dashboard; flip the Toggle and "V1 = 1" prints here.
 """
-import math, os, time
+import math, time
 from relink_iot import Relink
 
 # ── 1. Your settings (or set RELINK_TOKEN / RELINK_KEY / RELINK_SERVER) ──
-TOKEN  = os.environ.get("RELINK_TOKEN",  "your-device-token")
-KEY    = os.environ.get("RELINK_KEY",    "")              # "" = no encryption
-SERVER = os.environ.get("RELINK_SERVER", "192.168.96.50")
+TOKEN  = "your-device-token"
+KEY    = ""              # "" = no encryption
+SERVER = "relink-iot.com"
 
 # ── 2. Connect ──
 r = Relink(TOKEN, KEY, SERVER)

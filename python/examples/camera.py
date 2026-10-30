@@ -8,15 +8,15 @@ Run:              python3 camera.py                       # opens a window, q qu
                   python3 camera.py --set "fs=QVGA;q=20"  # change camera settings first
 You'll see:       the video, plus "15.0 fps  12.3 KB  decode 2.1 ms" every 2 s.
 """
-import os, sys, time
+import sys, time
 import numpy as np
 import cv2
 from relink_iot import Relink
 
 # ── 1. Your settings ──
-TOKEN  = os.environ.get("RELINK_TOKEN",  "your-device-token")
-KEY    = os.environ.get("RELINK_KEY",    "")              # camera needs encryption (P2P mesh)
-SERVER = os.environ.get("RELINK_SERVER", "192.168.96.50")
+TOKEN  = "your-device-token"
+KEY    = ""              # camera needs encryption (P2P mesh)
+SERVER = "relink-iot.com"
 STREAM_PIN, SETTINGS_PIN = 10, 11
 
 headless = "--headless" in sys.argv
