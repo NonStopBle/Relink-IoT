@@ -6,9 +6,9 @@
 #include <map>
 #include <string>
 
-#define MY_TOKEN  "xW70sxgsD5dUwVbUAWwa6CRSUycSlajF"
-#define MY_KEY    "0f5a1815f63434deb74a2136c8b938db9008b1fc24e0b88630dd01a78cb92cd"                    // "" = no encryption
-#define MY_SERVER "192.168.10.165"
+#define MY_TOKEN  "your-device-token"
+#define MY_KEY    ""                    // "" = no encryption
+#define MY_SERVER "relink-iot.com"
 
 inline const char* setting(const char* env, const char* fallback) {
     const char* v = getenv(env);

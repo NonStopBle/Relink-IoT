@@ -4,13 +4,13 @@ Dashboard setup:  any datastreams
 Run:              python3 listen.py
 You'll see:       "V3 = 42" for every new value, and how you're linked (p2p / relay) every 5 s.
 """
-import os, time
+import time
 from relink_iot import Relink
 
 # ── 1. Your settings ──
-TOKEN  = os.environ.get("RELINK_TOKEN",  "your-device-token")
-KEY    = os.environ.get("RELINK_KEY",    "")
-SERVER = os.environ.get("RELINK_SERVER", "192.168.96.50")
+TOKEN  = "your-device-token"
+KEY    = ""
+SERVER = "relink-iot.com"
 
 # ── 2. Connect ──
 r = Relink(TOKEN, KEY, SERVER)

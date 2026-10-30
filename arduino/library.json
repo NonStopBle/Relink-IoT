@@ -1,6 +1,6 @@
 {
   "name": "RelinkIoT",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Build your own IoT projects and monitor or control them from anywhere with ReLink IoT. Connect ESP32 and ESP8266 devices to collect sensor data, control relays and other outputs, and create connected applications using virtual pins. ReLink IoT supports encrypted communication, direct device-to-device connections, automatic relay fallback, and OTA firmware updates, with camera streaming on supported ESP32 boards.",
   "frameworks": "arduino",
   "platforms": ["espressif32", "espressif8266"],

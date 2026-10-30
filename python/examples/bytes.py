@@ -5,13 +5,13 @@ Pairs with:       the Arduino "ByteArray" example (it fills V2)
 Run:              python3 bytes.py
 You'll see:       "V2 accel=(841, 540, 981) online=1" as the ESP32 sends.
 """
-import os, struct, time
+import struct, time
 from relink_iot import Relink
 
 # ── 1. Your settings ──
-TOKEN  = os.environ.get("RELINK_TOKEN",  "your-device-token")
-KEY    = os.environ.get("RELINK_KEY",    "")
-SERVER = os.environ.get("RELINK_SERVER", "192.168.96.50")
+TOKEN  = "your-device-token"
+KEY    = ""
+SERVER = "relink-iot.com"
 
 # ── 2. Connect ──
 r = Relink(TOKEN, KEY, SERVER)
