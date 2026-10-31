@@ -223,10 +223,6 @@ r.virtualWrite(0, 21.5f);
 | C++: `find_package(relink)` fails | `relink_DIR` points at `cpp/relink/lib/cmake/relink`, and `libssl-dev` and `zlib1g-dev` are installed |
 | Camera shows nothing | `CameraStream` is on a supported ESP32 camera board, with V10 Camera and V11 ByteArray added |
 
-## Security
-
-Never commit real tokens or keys to Git. An empty key (`""`) disables encryption and
-is only for local testing.
 
 ---
 
