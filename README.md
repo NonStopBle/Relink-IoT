@@ -42,7 +42,7 @@ others and the dashboard.
 
 | Library | Folder | Runs on | File |
 |---|---|---|---|
-| **Arduino** | [`arduino/`](arduino) | ESP32, ESP32-S2/S3/C3/C5/C6/P4, ESP8266 | `arduino/RelinkIoT-1.0.3.zip` |
+| **Arduino** | [`arduino/`](arduino) | ESP32, ESP32-S2/S3/C3/C5/C6/P4, ESP8266 | `arduino/RelinkIoT-1.0.4.zip` |
 | **C++** | [`cpp/`](cpp) | Linux x86_64 (OpenSSL + zlib) | `cpp/relink-1.0.3-linux-x86_64.tar.gz` |
 | **Python** | [`python/`](python) | Linux x86_64, Python 3.12 | `python/relink_iot-1.0.3-cp312-cp312-linux_x86_64.whl` |
 
@@ -65,7 +65,7 @@ dashboard writes to V1.
 
 <details open><summary><b>Arduino (ESP32 / ESP8266)</b></summary>
 
-1. Download `arduino/RelinkIoT-1.0.3.zip`.
+1. Download `arduino/RelinkIoT-1.0.4.zip`.
 2. In the Arduino IDE: *Sketch → Include Library → Add .ZIP Library…* and pick the zip.
 3. Open *File → Examples → RelinkIoT → BasicSensor*.
 4. Fill in your Wi-Fi, token, and key, then upload.
@@ -73,7 +73,7 @@ dashboard writes to V1.
 **PlatformIO** (`platformio.ini`):
 
 ```ini
-lib_deps = https://github.com/NonStopBle/Relink-IoT/raw/main/arduino/RelinkIoT-1.0.3.zip
+lib_deps = https://github.com/NonStopBle/Relink-IoT/raw/main/arduino/RelinkIoT-1.0.4.zip
 ```
 
 No other libraries are needed: the crypto code is already linked in.
