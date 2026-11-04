@@ -14,6 +14,7 @@ SERVER = "relink-iot.com"
 
 # ── 2. Connect ──
 r = Relink(TOKEN, KEY, SERVER)
+r.enable_p2p()   # dashboard writes come straight here when they can (needs KEY)
 
 # ── 3. One handler for every pin ──
 last = {}

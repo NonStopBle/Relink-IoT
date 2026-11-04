@@ -7,7 +7,7 @@
 #include <functional>
 
 // ── Version ───────────────────────────────────────────────────────────────────
-#define RELINK_VERSION "1.0.3"
+#define RELINK_VERSION "1.0.5"
 
 // ── Protocol data type tags ───────────────────────────────────────────────────
 #define RELINK_TYPE_INT16  0
@@ -15,8 +15,28 @@
 #define RELINK_TYPE_FLOAT  2
 #define RELINK_TYPE_STRING 3
 #define RELINK_TYPE_BYTES  4   // raw bytes, framed like a string ([len][bytes])
+#define RELINK_TYPE_UINT8  5   // 1 byte, 0..255
+#define RELINK_TYPE_DOUBLE 6   // 8-byte IEEE double (Float64)
 // Types whose value carries its own length byte on the wire.
 #define RELINK_TYPE_SIZED(t) ((t) == RELINK_TYPE_STRING || (t) == RELINK_TYPE_BYTES)
+// Bytes of a fixed-size value; 0 for String/ByteArray (sized) or an unknown type.
+static inline uint8_t relinkTypeSize(uint8_t t) {
+    return t == RELINK_TYPE_INT16 ? 2 : (t == RELINK_TYPE_INT32 || t == RELINK_TYPE_FLOAT) ? 4
+         : t == RELINK_TYPE_UINT8 ? 1 : t == RELINK_TYPE_DOUBLE ? 8 : 0;
+}
+// A numeric value as double; false for String/ByteArray or a short value.
+static inline bool relinkTypeNum(uint8_t t, const void* v, uint8_t sz, double& out) {
+    uint8_t need = relinkTypeSize(t);
+    if (!need || sz < need) return false;
+    switch (t) {
+    case RELINK_TYPE_INT16:  { int16_t x; memcpy(&x, v, 2); out = x; return true; }
+    case RELINK_TYPE_INT32:  { int32_t x; memcpy(&x, v, 4); out = x; return true; }
+    case RELINK_TYPE_FLOAT:  { float x;   memcpy(&x, v, 4); out = x; return true; }
+    case RELINK_TYPE_UINT8:  { out = *(const uint8_t*)v; return true; }
+    case RELINK_TYPE_DOUBLE: { double x;  memcpy(&x, v, 8); out = x; return true; }
+    }
+    return false;
+}
 
 // ── VPin alias macros ─────────────────────────────────────────────────────────
 #define V0   0
@@ -284,28 +304,47 @@ typedef std::function<void(float)>                RelinkCallbackFloat;
 typedef std::function<void(const char*, uint8_t)> RelinkCallbackString;
 typedef std::function<void(const uint8_t*, uint8_t)> RelinkCallbackBytes;   // ByteArray datastream
 
+// ── RelinkBits — one integer pin value, read as a number or as bits ──────────
+// The library stores nothing per bit: the sketch keeps the value, every member
+// views the same 4 bytes (little-endian, so u8/i16 are the low bytes), and
+// virtualWrite(pin, bits) sends it in the datastream's own type.
+//   RelinkBits relays;                       // V5 = UInt8 or Integer
+//   RELINK_WRITE(V5) { relays = param; }     // keep what the dashboard set
+//   relays.setBit(2, digitalRead(BTN));  Relink.virtualWrite(V5, relays);
+union RelinkBits {
+    uint8_t  u8;
+    int16_t  i16;
+    int32_t  i32;
+    uint32_t raw;
+    RelinkBits(int32_t v = 0) : i32(v) {}
+    bool asBit(uint8_t n) const { return n < 32 && ((raw >> n) & 1u); }
+    void setBit(uint8_t n, bool on) { if (n < 32) raw = on ? (raw | (1UL << n)) : (raw & ~(1UL << n)); }
+};
+
 // ── RelinkParam — unified value wrapper ──────────────────────────────────────
 class RelinkParam {
 public:
-    RelinkParam(int16_t v)                : _t(0) { _u.i16 = v; }
-    RelinkParam(int32_t v)                : _t(1) { _u.i32 = v; }
-    RelinkParam(float v)                  : _t(2) { _u.f   = v; }
+    RelinkParam(int16_t v)                : _t(0), _d(v) {}
+    RelinkParam(int32_t v)                : _t(1), _d(v) {}
+    RelinkParam(float v)                  : _t(2), _d(v) {}
     RelinkParam(const char* s, uint8_t l) : _t(3), _s(s), _n(l) {}
     RelinkParam(const uint8_t* b, uint8_t l) : _t(4), _s((const char*)b), _n(l) {}   // ByteArray
+    RelinkParam(uint8_t v)                : _t(5), _d(v) {}
+    RelinkParam(double v)                 : _t(6), _d(v) {}
 
-    // Widgets like Control Slider always send FLOAT regardless of the pin's
-    // configured data type, so a RELINK_WRITE(Vx) handler calling asInt()
-    // must correctly convert a float-tagged param, not just reinterpret its
-    // raw bits as an int32 (which is what happened before -- it only
-    // "worked" at 0.0f because the all-zero bit pattern happens to also
-    // read as integer 0).
-    int16_t     asInt16()  const { return _t == 2 ? (int16_t)_u.f : _u.i16; }
-    int32_t     asInt32()  const { return _t == 2 ? (int32_t)_u.f : _u.i32; }
-    int         asInt()    const {
-        if (_t == 2) return (int)_u.f;
-        return (int)(_t == 0 ? _u.i16 : _u.i32);
-    }
-    float       asFloat()  const { return _t == 2 ? _u.f : (_t == 0 ? (float)_u.i16 : (float)_u.i32); }
+    // Any number converts: a Float sent to an int handler truncates toward
+    // zero instead of reinterpreting the float's bits.
+    int16_t     asInt16()  const { return (int16_t)(int32_t)_d; }
+    int32_t     asInt32()  const { return (int32_t)_d; }
+    int         asInt()    const { return (int)_d; }
+    uint8_t     asUInt8()  const { return (uint8_t)(int32_t)_d; }
+    float       asFloat()  const { return (float)_d; }
+    double      asDouble() const { return _d; }
+    operator RelinkBits()  const { return RelinkBits(asInt32()); }
+    // One bit of an integer value (UInt8 / Integer datastreams), bit 0 = LSB:
+    //   RELINK_WRITE(V3) { digitalWrite(LED, param.getBit(2)); }
+    bool        asBit(uint8_t n)  const { return n < 32 && ((uint32_t)(int32_t)_d >> n) & 1u; }
+    bool        getBit(uint8_t n) const { return asBit(n); }
     const char* c_str()    const { return _s ? _s : ""; }
     uint8_t     length()   const { return _n; }
     String      asString() const { return _s ? String(_s).substring(0, _n) : String(); }
@@ -313,10 +352,12 @@ public:
     const uint8_t* asBytes() const { return (const uint8_t*)_s; }
     bool        isBytes()  const { return _t == 4; }
     bool        isString() const { return _t == 3; }
+    bool        isNumber() const { return _t != 3 && _t != 4; }
+    uint8_t     type()     const { return _t; }   // RELINK_TYPE_*
 
 private:
     uint8_t _t = 0;
-    union { int16_t i16; int32_t i32; float f; } _u{};
+    double  _d = 0;   // every numeric type fits a double exactly
     const char* _s = nullptr;
     uint8_t     _n = 0;
 };

@@ -17,6 +17,7 @@
 #include <stdexcept>
 #include <functional>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -28,17 +29,40 @@ namespace relink {
 // Relay copy per pin until the relay announces its rate (admin setting).
 constexpr uint16_t RELAY_HZ_DEFAULT = 100;
 
-enum class DType : uint8_t { Int16 = 0, Int32 = 1, Float = 2, String = 3, Bytes = 4 };   // Bytes: raw, in Value::s
+// Bytes: raw, in Value::s. UInt8: 0..255, in Value::i. Double (Float64): in Value::d.
+enum class DType : uint8_t { Int16 = 0, Int32 = 1, Float = 2, String = 3, Bytes = 4, UInt8 = 5, Double = 6 };
+
+// One integer pin value read as a number or as bits; the sketch keeps it, the
+// library stores nothing per bit. Members share the same 4 bytes (u8/i16 are
+// the low bytes on little-endian hosts). Send with virtualWrite(pin, bits).
+union Bits {
+    uint8_t  u8;
+    int16_t  i16;
+    int32_t  i32;
+    uint32_t raw;
+    Bits(int32_t v = 0) : i32(v) {}
+    bool asBit(unsigned n) const { return n < 32 && ((raw >> n) & 1u); }
+    void setBit(unsigned n, bool on) { if (n < 32) raw = on ? (raw | (1u << n)) : (raw & ~(1u << n)); }
+};
 
 struct Value {
     DType       type = DType::Int32;
     int32_t     i = 0;
     float       f = 0;
+    double      d = 0;
     std::string s;
 
-    int32_t     asInt()    const { return type == DType::Float ? (int32_t)f : type == DType::String ? std::atoi(s.c_str()) : i; }
-    float       asFloat()  const { return type == DType::Float ? f : type == DType::String ? (float)std::atof(s.c_str()) : (float)i; }
-    std::string asString() const { return type == DType::String || type == DType::Bytes ? s : type == DType::Float ? std::to_string(f) : std::to_string(i); }
+    double      asDouble() const { return type == DType::Float ? f : type == DType::Double ? d
+                                        : type == DType::String ? std::atof(s.c_str()) : (double)i; }
+    int32_t     asInt()    const { return type == DType::String ? std::atoi(s.c_str()) : (int32_t)asDouble(); }
+    uint8_t     asUInt8()  const { return (uint8_t)asInt(); }
+    float       asFloat()  const { return (float)asDouble(); }
+    // One bit (0 = LSB) of an integer value (UInt8 / Integer datastreams).
+    bool        asBit(unsigned n)  const { return n < 32 && (((uint32_t)asInt() >> n) & 1u); }
+    bool        getBit(unsigned n) const { return asBit(n); }
+    operator Bits() const { return Bits(asInt()); }
+    std::string asString() const { return type == DType::String || type == DType::Bytes ? s : type == DType::Float ? std::to_string(f)
+                                        : type == DType::Double ? std::to_string(d) : std::to_string(i); }
 };
 
 class Client {
@@ -73,11 +97,36 @@ public:
     // last. True once another viewer took it; watchCamera() takes it back.
     bool cameraKicked() const { return cam_kicked_; }
     void watchCamera() { cam_kicked_ = false; last_cam_sub_ = 0; }
+
+    // Sending video, like an ESP32-CAM: one JPEG frame on V<pin> (a Camera
+    // datastream) to the viewer that is watching, peer-to-peer over the
+    // encrypted mesh, never through the relay. The viewer is another C++ /
+    // Python program using onCamera(), or the dashboard's Live Camera widget
+    // over its data channel (needs enableP2P()). The newest viewer takes the
+    // stream. False = nothing sent (nobody watching, or no encryption key).
+    // Check virtualImageWanted() before grabbing and encoding a frame.
+    bool virtualImageWanted();
+    bool virtualImageWrite(uint8_t pin, const uint8_t* jpeg, size_t len);
     void setDebug(bool on) { debug_ = on; }
+
+    // Dashboard P2P: answer the dashboard's WebRTC offer, so its widgets get
+    // this program's pins over a direct data channel (and its writes come
+    // straight here), like an ESP32 with the RelinkIoT library. The relay
+    // path keeps working alongside; nothing is lost when P2P can't connect.
+    // udpPort 0 = any free port. Needs the encryption key (signed
+    // signaling) and a library built with mbedTLS -- false otherwise.
+    // Only one program per token should call this: the first to answer an
+    // offer gets the dashboard.
+    bool enableP2P(uint16_t udpPort = 0);
+    bool p2pConnected();
 
     void virtualWrite(uint8_t pin, int32_t v);
     void virtualWrite(uint8_t pin, float v);
-    void virtualWrite(uint8_t pin, double v) { virtualWrite(pin, (float)v); }
+    // A Float64 datastream keeps all 8 bytes; on any other number pin it converts.
+    void virtualWrite(uint8_t pin, double v);
+    void virtualWrite(uint8_t pin, uint8_t v);   // UInt8 datastream
+    // Integer / UInt8 pin as bits (see Bits): sends the whole value.
+    void virtualWrite(uint8_t pin, const Bits& b) { virtualWrite(pin, b.i32); }
     void virtualWrite(uint8_t pin, const std::string& v);
     void virtualWrite(uint8_t pin, const char* v) { virtualWrite(pin, std::string(v)); }
     void virtualWrite(uint8_t pin, const std::vector<uint8_t>& v);   // ByteArray datastream
@@ -101,6 +150,7 @@ private:
         double last_rx = 0, last_hello = 0;
         double since = -1;      // first listed by the relay (hello priming window)
         bool gateway = false;   // its hello says a P2P browser gets our writes through it
+        double cam_rx = 0;      // its last camera subscribe ('C'), when we send video
         bool up(double now) const { return has_addr && now - last_rx < 5.0; }
     };
 
@@ -117,6 +167,16 @@ private:
     void camCommit(const uint8_t* head, size_t len);
     void dispatch(uint8_t pin, uint8_t dtype, const uint8_t* v, size_t n, bool len_prefixed = true);
     void refreshPins();
+    void parsePinsJson(const std::string& body);
+    std::string apiAuth(const char* method, const std::string& path, const std::string& body);
+    bool apiSync();
+    // Dashboard P2P (relink.cpp; empty without mbedTLS)
+    struct Rtc;
+    std::unique_ptr<Rtc> rtc_;
+    void rtcPoll();
+    void rtcSignal();             // signaling thread: fetch an offer, answer it
+    void rtcSendPins(const std::vector<std::string>& entries);
+    static void rtcOnMessage(void* user, const uint8_t* data, size_t len);
     uint64_t nextNonce();
 
     std::string token_, server_host_;
@@ -135,6 +195,7 @@ private:
 
     std::mutex mu_;                      // tx_, handlers_, peers_, allowed_
     std::vector<std::string> tx_;
+    std::vector<std::string> tx_nodc_;   // writes from the P2P browser: to mesh / relay only
     std::map<uint8_t, std::vector<PinHandler>> handlers_;
     std::vector<AnyHandler> any_;
     std::map<uint8_t, std::vector<CameraHandler>> cam_handlers_;   // stream pin -> handlers
@@ -147,6 +208,18 @@ private:
     std::map<uint8_t, CamFrame> cams_;
     double last_cam_sub_ = 0;
     std::atomic<bool> cam_kicked_{false};
+    int cam_owner_ = -1;                 // sender side: instance we stream to, CAM_BROWSER, or -1 (under mu_)
+    static constexpr int CAM_BROWSER = -2;   // the dashboard over P2P
+    bool cam_browser_ = false;           // dashboard's widget is on screen ([0x12][on], under mu_)
+    std::atomic<bool> cam_kick_browser_{false};   // send [0x21] from rtcPoll (lock order: rtc before mu_)
+    bool camToBrowser(uint8_t pin, uint16_t fid, const uint8_t* jpeg, size_t len);
+    uint16_t cam_fid_ = 0;
+    std::mutex nonce_mu_;                // video is sent from the caller's thread
+    uint64_t nextNonces(size_t n);       // n consecutive nonces, returns the first
+    // Video send buffers, reused for every frame (zero allocations per frame).
+    std::mutex cam_tx_mu_;
+    void* cam_ctx_ = nullptr;            // EVP_CIPHER_CTX with the key set once
+    std::vector<uint8_t> cam_pkts_;
     std::map<uint16_t, Peer> peers_;
     // Replay window per peer (as in DTLS/IPsec): each nonce once, up to
     // REPLAY_WINDOW behind the highest seen -- a device sends camera slices
@@ -157,6 +230,7 @@ private:
     bool replaySeen(uint16_t inst, uint64_t nonce);   // under mu_
     void replayMark(uint16_t inst, uint64_t nonce);   // under mu_
     std::vector<bool> allowed_;          // empty = not fetched yet
+    uint8_t kinds_[256] = {};            // declared type per pin (1 int, 2 float, 3 string, 4 bytes, 5 uint8, 6 double; 0 none)
     std::vector<uint16_t> last_links_;
     struct PinSum { uint32_t n = 0; float mn = 0, mx = 0, sum = 0, last = 0; };
     uint16_t relay_hz_ = RELAY_HZ_DEFAULT; // from the relay's peer list, under mu_ (0 = no limit)

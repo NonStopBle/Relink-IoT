@@ -15,6 +15,7 @@ int main(int argc, char** argv) {
 
     // 2. Connect
     relink::Client r(RELINK_TOKEN_, RELINK_KEY_, RELINK_SERVER_);
+    r.enableP2P();   // dashboard writes come straight here when they can (needs the key)
 
     // 3. One handler for every pin
     std::mutex m;
