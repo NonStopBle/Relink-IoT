@@ -127,16 +127,21 @@ public:
     // VPin write (device -> server -> dashboard)
     void virtualWrite(uint8_t pin, int16_t v);
     void virtualWrite(uint8_t pin, int32_t v);
+    void virtualWrite(uint8_t pin, uint8_t v);    // UInt8 datastream (0..255)
+    void virtualWrite(uint8_t pin, double v);     // Float64 datastream
     // Any other integer (int, long, unsigned, bool, millis()): on ESP32 int32_t
     // is `long`, so a plain int matched no overload exactly and
     // virtualWrite(V0, 5) was ambiguous. Sent as int32.
     template <typename T, typename std::enable_if<std::is_integral<T>::value
-        && !std::is_same<T, int16_t>::value && !std::is_same<T, int32_t>::value, int>::type = 0>
+        && !std::is_same<T, int16_t>::value && !std::is_same<T, int32_t>::value
+        && !std::is_same<T, uint8_t>::value, int>::type = 0>
     void virtualWrite(uint8_t pin, T v) { virtualWrite(pin, (int32_t)v); }
     void virtualWrite(uint8_t pin, float v);
     void virtualWrite(uint8_t pin, const char* s);
     void virtualWrite(uint8_t pin, const String& s);
     void virtualWrite(uint8_t pin, const uint8_t* data, uint8_t len);   // ByteArray datastream
+    // Integer / UInt8 pin as bits (see RelinkBits): sends the whole value.
+    void virtualWrite(uint8_t pin, const RelinkBits& b) { virtualWrite(pin, b.i32); }
 
     // VPin read callbacks (dashboard -> server -> device)
     void onVirtualPin(uint8_t pin, RelinkCallbackInt16 cb);

@@ -13,6 +13,7 @@
 int main() {
     // 2. Connect
     relink::Client r(RELINK_TOKEN_, RELINK_KEY_, RELINK_SERVER_);
+    r.enableP2P();   // dashboard widgets get V0 over a direct link when they can (needs the key)
 
     // 3. React to writes from the dashboard or another program
     r.onPin(1, [](const relink::Value& v) { printf("V1 = %s\n", v.asString().c_str()); });

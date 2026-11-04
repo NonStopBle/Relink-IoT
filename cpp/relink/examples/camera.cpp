@@ -12,12 +12,12 @@
 #include <thread>
 #include "settings.hpp"   // 1. Your settings live here (camera needs a KEY: P2P mesh)
 
-static const uint8_t STREAM_PIN = 10, SETTINGS_PIN = 11;
 
 int main(int argc, char** argv) {
     int secs = argc > 1 ? atoi(argv[1]) : 1 << 30;
     const char* out = argc > 2 && *argv[2] ? argv[2] : nullptr;
     const char* settings = argc > 3 ? argv[3] : nullptr;
+    const uint8_t STREAM_PIN = argc > 4 ? (uint8_t)atoi(argv[4]) : 10, SETTINGS_PIN = STREAM_PIN + 1;
 
     // 2. Connect
     relink::Client r(RELINK_TOKEN_, RELINK_KEY_, RELINK_SERVER_);
