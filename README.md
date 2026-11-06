@@ -11,6 +11,7 @@
 
 <p align="center">
   <a href="https://relink-iot.com">Website</a> ·
+  <a href="#android-app">Android app</a> ·
   <a href="#quick-start">Quick start</a> ·
   <a href="#examples">Examples</a> ·
   <a href="#api-at-a-glance">API</a> ·
@@ -51,6 +52,30 @@ others and the dashboard.
 > (arm64) and macOS builds are coming.
 > **ESP8266:** builds and runs the examples, but hasn't been tested on a real board yet.
 > ESP32 is tested on hardware.
+
+## Android app
+
+**Relink for Android** (1.0.48): your dashboards on your phone. It is signed by Rezier Labs and
+**waiting to be uploaded to Google Play**. Until then, install the APK from
+[Releases](https://github.com/NonStopBle/Relink-IoT/releases/tag/android-v1.0.48).
+
+- **Download:** `relink-android-1.0.48.apk`, Android 8.0 or newer (arm64, armv7, x86_64)
+- **Install:** open the file on the phone and allow *Install unknown apps* for your browser or file manager.
+  Sign in with your relink-iot.com account.
+
+What it has:
+
+- **Dashboards:** every widget type from the web, the same edit mode (move, resize, drop into a
+  container box, Duplicate · Edit · Remove bar) and a landscape layout.
+- **Live values** over the same encrypted connection as a device. The app connects only while a
+  dashboard is on screen.
+- **Linked devices:** one widget can show and control another of your devices.
+- **Alerts as notifications**, also when the app is closed (opt-in, low battery use).
+- **Phone widgets:** phone sensors and GPS, live camera, map, custom HTML widgets.
+- **Shortcuts:** home-screen widget, Quick Settings tile and app shortcuts.
+- **Everything from the web:** devices, datastreams, OTA firmware, storage with Google Drive,
+  share links, docs, plan and billing, refunds.
+- **Account:** Google sign-in, two-factor sign-in and account deletion.
 
 ## Quick start
 
