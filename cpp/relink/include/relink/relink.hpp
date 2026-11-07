@@ -71,6 +71,7 @@ public:
     using AnyHandler = std::function<void(uint8_t pin, const Value&)>;
     // jpeg points into the reassembly buffer and is valid only during the call.
     using CameraHandler = std::function<void(const uint8_t* jpeg, size_t len, uint16_t frameId)>;
+    using AudioHandler = std::function<void(const int16_t* pcm, size_t n)>;
 
     // encKeyHex: the device's 64-hex-char key, or "" for plaintext (the
     // device must then allow plaintext in the dashboard). Peer-to-peer mesh
@@ -79,6 +80,9 @@ public:
            uint16_t port = 7445, bool mesh = true);
     ~Client();
     Client(const Client&) = delete;
+    // Viewer app (phone/dashboard), not the device: registers with caps 'A' so the
+    // relay doesn't count it as the device online or list it to other apps. Before start().
+    void setApp(bool on) { app_ = on; }
     Client& operator=(const Client&) = delete;
 
     void onPin(uint8_t pin, PinHandler h);
@@ -97,6 +101,11 @@ public:
     // last. True once another viewer took it; watchCamera() takes it back.
     bool cameraKicked() const { return cam_kicked_; }
     void watchCamera() { cam_kicked_ = false; last_cam_sub_ = 0; }
+    // Pause / resume watching (default on). Off sends 'stop' to the device
+    // once, so the stream ends now instead of after its 3 s timeout -- for a
+    // viewer that registers onCamera() up front but shows the picture only
+    // some of the time (the Android app's Camera widget).
+    void setCameraWatch(bool on) { if (on && !cam_watch_) watchCamera(); cam_watch_ = on; }
 
     // Sending video, like an ESP32-CAM: one JPEG frame on V<pin> (a Camera
     // datastream) to the viewer that is watching, peer-to-peer over the
@@ -105,6 +114,20 @@ public:
     // over its data channel (needs enableP2P()). The newest viewer takes the
     // stream. False = nothing sent (nobody watching, or no encryption key).
     // Check virtualImageWanted() before grabbing and encoding a frame.
+    // Live audio, 8 kHz mono G.711 µ-law in 20 ms packets, peer-to-peer only.
+    // onAudio: sound a device streams on V<pin> (an Audio datastream, RelinkIoT
+    // audioWrite) -- 160 samples per call on the network thread; while a
+    // handler is set this program asks the device for the stream every second.
+    // Register before start().
+    void onAudio(uint8_t pin, AudioHandler h);
+    // audioWrite: talk to the devices on this token (their sketch plays it
+    // with Relink.onAudio). Samples are sent in 20 ms packets to every direct
+    // peer; a partial packet waits for the next call. Returns packets sent.
+    int audioWrite(uint8_t pin, const int16_t* pcm, size_t n);
+    // Pause / resume listening (default on). Off tells the device once, so it
+    // stops reading its mic now instead of after its 3 s timeout.
+    void setAudioListen(bool on) { aud_listen_ = on; if (on) last_aud_sub_ = 0; }
+
     bool virtualImageWanted();
     bool virtualImageWrite(uint8_t pin, const uint8_t* jpeg, size_t len);
     void setDebug(bool on) { debug_ = on; }
@@ -134,6 +157,11 @@ public:
     void flush();                 // send queued writes now
     void run();                   // one non-blocking step (if not using start())
     void start();                 // run() in a background thread
+    // Low power (e.g. a phone app in the background): start()'s thread wakes on
+    // packets or every 500 ms instead of every 2 ms, no mesh hellos (pins come
+    // through the relay), pin list refreshed every 5 min. Writes still go out
+    // at once if you call flush(). Off by default; can change while running.
+    void setLowPower(bool on);
     void stop();
 
     bool connected() const;
@@ -185,7 +213,8 @@ private:
     uint8_t  key_[32]{};
     bool      api_synced_ = false;   // server clock offset known (signed API calls)
     long long api_offset_ = 0;
-    bool     secure_ = false, mesh_ = true, debug_ = false;
+    bool     secure_ = false, mesh_ = true, debug_ = false, app_ = false;
+    std::atomic<bool> low_power_{false};
     uint16_t instance_ = 0;
     uint64_t relay_nonce_ = 0;   // last sealed downlink taken from the relay
     std::atomic<uint32_t> salt_{0};   // relay session salt ('Y'), 0 = none yet (S6)
@@ -199,6 +228,12 @@ private:
     std::map<uint8_t, std::vector<PinHandler>> handlers_;
     std::vector<AnyHandler> any_;
     std::map<uint8_t, std::vector<CameraHandler>> cam_handlers_;   // stream pin -> handlers
+    std::map<uint8_t, std::vector<AudioHandler>> aud_handlers_;    // audio pin -> handlers
+    std::map<uint8_t, std::vector<int16_t>> aud_buf_;              // samples waiting for a full packet
+    double last_aud_sub_ = 0;
+    std::atomic<bool> aud_listen_{true};
+    bool aud_stop_sent_ = false;
+    uint16_t aud_sid_ = 0, aud_seq_ = 0;
     struct CamFrame {                    // one pin's reassembly, network thread only
         std::vector<uint8_t> buf, seen;
         int fid = -1;
@@ -208,6 +243,8 @@ private:
     std::map<uint8_t, CamFrame> cams_;
     double last_cam_sub_ = 0;
     std::atomic<bool> cam_kicked_{false};
+    std::atomic<bool> cam_watch_{true};
+    bool cam_stop_sent_ = true;          // network thread
     int cam_owner_ = -1;                 // sender side: instance we stream to, CAM_BROWSER, or -1 (under mu_)
     static constexpr int CAM_BROWSER = -2;   // the dashboard over P2P
     bool cam_browser_ = false;           // dashboard's widget is on screen ([0x12][on], under mu_)

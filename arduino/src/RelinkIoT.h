@@ -53,6 +53,10 @@
 #ifdef ESP32
   #define RELINK_HAS_WEBRTC 1
 #endif
+// Live audio is built in on every ESP32 (needs the P2P data channel).
+#if defined(RELINK_HAS_WEBRTC) && !defined(RELINK_AUDIO_STREAM)
+  #define RELINK_AUDIO_STREAM 1
+#endif
 
 #define RELINK_API_PORT        8000    // FastAPI port on the same host as the relay
 #define RELINK_WEBRTC_PORT     17453   // local UDP port for the P2P data channel
@@ -116,6 +120,16 @@ public:
     bool virtualImageBusy() const;
     // Camera widget settings -> sensor:  RELINK_WRITE(V11) { Relink.cameraApply(param); }
     void cameraApply(const RelinkParam& param);
+#endif
+
+#ifdef RELINK_AUDIO_STREAM
+    // Live audio on V<pin> (an Audio datastream), P2P only, 8 kHz mono.
+    // True while someone listens:  if (Relink.audioWanted(V0)) Relink.audioWrite(V0, buf, n, 8);
+    bool audioWanted(uint8_t pin);
+    // 16-bit samples, sent in 20 ms packets; gain boosts quiet mics.
+    bool audioWrite(uint8_t pin, const int16_t* pcm, size_t n, uint8_t gain = 1);
+    // What the dashboard says (push-to-talk): 160 samples per call.
+    void onAudio(uint8_t pin, std::function<void(const int16_t* pcm, size_t n)> cb);
 #endif
 
     // Main loop -- call every iteration of loop()
