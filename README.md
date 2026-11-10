@@ -44,11 +44,11 @@ others and the dashboard.
 | Library | Folder | Runs on | File |
 |---|---|---|---|
 | **Arduino** | [`arduino/`](arduino) | ESP32, ESP32-S2/S3/C3/C5/C6/P4, ESP8266 | `arduino/RelinkIoT-1.0.7.zip` |
-| **C++** | [`cpp/`](cpp) | Linux x86_64 (OpenSSL + zlib) | `cpp/relink-1.0.6-linux-x86_64.tar.gz` |
-| **Python** | [`python/`](python) | Linux x86_64, Python 3.12 | `python/relink_iot-1.0.6-cp312-cp312-linux_x86_64.whl` |
+| **C++** | [`cpp/`](cpp) | Linux x86_64 (OpenSSL + zlib) | `cpp/relink-1.0.7-linux-x86_64.tar.gz` |
+| **Python** | [`python/`](python) | Linux x86_64, Python 3.8–3.13 | `python/relink_iot-1.0.7-cp3XX-*.whl` (one per Python version) |
 
 > The libraries are precompiled. The C++ and Python builds are currently for
-> **Linux x86_64 only**, and the Python wheel for **Python 3.12 only**. Raspberry Pi
+> **Linux x86_64 only**, with Python wheels for **Python 3.8 to 3.13**. Raspberry Pi
 > (arm64) and macOS builds are coming.
 > **ESP8266:** builds and runs the examples, but hasn't been tested on a real board yet.
 > ESP32 is tested on hardware.
@@ -108,7 +108,8 @@ No other libraries are needed: the crypto code is already linked in.
 
 ```bash
 git clone https://github.com/NonStopBle/Relink-IoT.git && cd Relink-IoT
-pip install python/relink_iot-*.whl                 # pulls in `cryptography`
+pip install cryptography
+pip install --no-index --no-deps --find-links python/ relink_iot   # picks the wheel for your Python
 
 export RELINK_TOKEN=your-token RELINK_KEY=your-key RELINK_SERVER=relink-iot.com
 python3 python/examples/basic.py
@@ -244,7 +245,7 @@ r.virtualWrite(0, 21.5f);
 | Device never shows online | Token and key copied exactly (the key is 64 hex characters); `RELINK_SERVER` is `relink-iot.com`; the network allows outgoing UDP |
 | Dashboard writes don't arrive | `Relink.run()` is called continuously, with no long `delay()` in `loop()`; the datastream exists for that pin |
 | Values show the wrong type | The datastream type (Integer / Float / String / ByteArray) matches what you write |
-| `pip` says the wheel is "not supported" | The wheel is for Python 3.12 on Linux x86_64; check `python3 --version` and `uname -m` |
+| `pip` says the wheel is "not supported" | The wheels are for Python 3.8–3.13 on Linux x86_64; check `python3 --version` and `uname -m` |
 | C++: `find_package(relink)` fails | `relink_DIR` points at `cpp/relink/lib/cmake/relink`, and `libssl-dev` and `zlib1g-dev` are installed |
 | Camera shows nothing | `CameraStream` is on a supported ESP32 camera board, with V10 Camera and V11 ByteArray added |
 
