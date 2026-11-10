@@ -13,10 +13,16 @@
  * Speaker (option): an I2S amp such as MAX98357: set SPK_BCLK / SPK_LRC / SPK_DIN below.
  * You'll see:       video in the camera widget, sound in the audio widget. The camera is
  *                   only read while someone watches, the mic only while someone listens.
+ * On a PC instead:  same token + key, the board's video and sound, PC mic back to it:
+ *                     Python: python3 examples/camera_mic.py         (relink_lib/python)
+ *                     C++:    ./relink_camera_mic --jpg latest.jpg   (relink_lib/cpp)
+ *                   Both play the board's mic on the PC speaker (--save heard.wav to
+ *                   record it) and send the PC mic (or --tone 440) to the board.
  *
- * Why the mic has its own task: grabbing a big camera frame can take longer than the
- * mic's buffer lasts, and audio would drop. The task reads 20 ms blocks into a queue;
- * loop() sends whatever is queued.
+ * Why the mic has its own task on the other core: esp_camera_fb_get() in loop() waits
+ * for the next frame (tens of ms), longer than the mic's buffer lasts. The mic task
+ * reads 20 ms blocks and sends them itself with audioWrite(), so sound never waits
+ * for the camera, and the camera never waits for sound.
  */
 #define CAMERA_MODEL_XIAO_ESP32S3
 
@@ -46,9 +52,7 @@
 // #define SPK_LRC  8
 // #define SPK_DIN  9
 
-struct AudioBlock { int16_t pcm[160]; };   // 20 ms at 8 kHz
 I2SClass mic;
-QueueHandle_t micQueue;
 #ifdef SPK_DIN
 I2SClass speaker;
 #endif
@@ -62,6 +66,9 @@ void startWiFi() {
         WiFi.begin(WIFI_SSID, WIFI_PASS);
     }, WiFiEvent_t::ARDUINO_EVENT_WIFI_STA_DISCONNECTED);
     WiFi.mode(WIFI_STA);
+    // Radio always awake: with power save it dozes ~100 ms at a time and video
+    // and sound arrive in bursts. Costs ~100 mA; drop this line on battery.
+    WiFi.setSleep(false);
     WiFi.begin(WIFI_SSID, WIFI_PASS);
 }
 
@@ -92,19 +99,20 @@ static bool initCamera() {
     return true;
 }
 
-// Reads the mic only while someone listens, removes the PDM DC offset, queues 20 ms blocks.
+// Reads the mic only while someone listens, removes the PDM DC offset and sends
+// each 20 ms block straight away. Runs on the core loop() isn't on.
 void micTask(void*) {
     int32_t dc = 0;
-    AudioBlock b;
+    int16_t pcm[160];                   // 20 ms at 8 kHz
     for (;;) {
         if (!Relink.audioWanted(V0)) { vTaskDelay(pdMS_TO_TICKS(50)); continue; }
-        size_t n = mic.readBytes((char*)b.pcm, sizeof b.pcm) / 2;
+        size_t n = mic.readBytes((char*)pcm, sizeof pcm) / 2;
         if (n != 160) continue;
         for (size_t i = 0; i < n; i++) {
-            dc += (b.pcm[i] * 256 - dc) / 512;
-            b.pcm[i] = (int16_t)(b.pcm[i] - dc / 256);
+            dc += (pcm[i] * 256 - dc) / 512;
+            pcm[i] = (int16_t)(pcm[i] - dc / 256);
         }
-        xQueueSend(micQueue, &b, 0);    // queue full = loop() is behind: drop, don't wait
+        Relink.audioWrite(V0, pcm, n, MIC_GAIN);
     }
 }
 
@@ -135,8 +143,7 @@ void setup() {
     speaker.setPins(SPK_BCLK, SPK_LRC, SPK_DIN);
     speaker.begin(I2S_MODE_STD, 8000, I2S_DATA_BIT_WIDTH_16BIT, I2S_SLOT_MODE_MONO);
 #endif
-    micQueue = xQueueCreate(10, sizeof(AudioBlock));
-    xTaskCreatePinnedToCore(micTask, "mic", 4096, nullptr, 5, nullptr, 1);
+    xTaskCreatePinnedToCore(micTask, "mic", 4096, nullptr, 5, nullptr, xPortGetCoreID() ? 0 : 1);
 
     Relink.onAudio(V0, onTalk);
     Relink.setDebug(true);
@@ -147,10 +154,6 @@ void setup() {
 // ── 4. Loop ──
 void loop() {
     Relink.run();
-
-    AudioBlock b;
-    while (xQueueReceive(micQueue, &b, 0) == pdTRUE)
-        Relink.audioWrite(V0, b.pcm, 160, MIC_GAIN);
 
     if (Relink.virtualImageWanted()) {
         camera_fb_t* fb = esp_camera_fb_get();
