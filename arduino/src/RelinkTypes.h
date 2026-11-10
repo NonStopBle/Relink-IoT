@@ -7,7 +7,7 @@
 #include <functional>
 
 // ── Version ───────────────────────────────────────────────────────────────────
-#define RELINK_VERSION "1.0.6"
+#define RELINK_VERSION "1.0.7"
 
 // ── Protocol data type tags ───────────────────────────────────────────────────
 #define RELINK_TYPE_INT16  0
