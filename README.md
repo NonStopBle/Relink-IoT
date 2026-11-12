@@ -44,8 +44,8 @@ others and the dashboard.
 | Library | Folder | Runs on | File |
 |---|---|---|---|
 | **Arduino** | [`arduino/`](arduino) | ESP32, ESP32-S2/S3/C3/C5/C6/P4, ESP8266 | `arduino/RelinkIoT-1.0.7.zip` |
-| **C++** | [`cpp/`](cpp) | Linux x86_64 (OpenSSL + zlib) | `cpp/relink-1.0.7-linux-x86_64.tar.gz` |
-| **Python** | [`python/`](python) | Linux x86_64, Python 3.8–3.13 | `python/relink_iot-1.0.7-cp3XX-*.whl` (one per Python version) |
+| **C++** | [`cpp/`](cpp) | Linux x86_64 (OpenSSL + zlib) | `cpp/relink-1.0.8-linux-x86_64.tar.gz` |
+| **Python** | [`python/`](python) | Linux x86_64, Python 3.8–3.13 | `python/relink_iot-1.0.8-cp3XX-*.whl` (one per Python version) |
 
 > The libraries are precompiled. The C++ and Python builds are currently for
 > **Linux x86_64 only**, with Python wheels for **Python 3.8 to 3.13**. Raspberry Pi
@@ -55,11 +55,11 @@ others and the dashboard.
 
 ## Android app
 
-**Relink for Android** (1.0.48): your dashboards on your phone. It is signed by Rezier Labs and
-**waiting to be uploaded to Google Play**. Until then, install the APK from
-[Releases](https://github.com/NonStopBle/Relink-IoT/releases/tag/android-v1.0.48).
+**Relink for Android** (1.0.52, **beta**): your dashboards on your phone. It is signed by Rezier Labs.
+The app store release is coming soon. Until then, install the beta APK from
+[Releases](https://github.com/NonStopBle/Relink-IoT/releases/tag/android-v1.0.52).
 
-- **Download:** `relink-android-1.0.48.apk`, Android 8.0 or newer (arm64, armv7, x86_64)
+- **Download:** [`relink-android-1.0.52.apk`](https://github.com/NonStopBle/Relink-IoT/releases/download/android-v1.0.52/relink-android-1.0.52.apk), Android 8.0 or newer (arm64, armv7, x86_64)
 - **Install:** open the file on the phone and allow *Install unknown apps* for your browser or file manager.
   Sign in with your relink-iot.com account.
 
