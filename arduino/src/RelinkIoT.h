@@ -53,8 +53,8 @@
 #ifdef ESP32
   #define RELINK_HAS_WEBRTC 1
 #endif
-// Live audio is built in on every ESP32 (needs the P2P data channel).
-#if defined(RELINK_HAS_WEBRTC) && !defined(RELINK_AUDIO_STREAM)
+// Live audio is built in on every ESP32 (dashboard over P2P; mesh peers over UDP).
+#if defined(ESP32) && !defined(RELINK_AUDIO_STREAM)
   #define RELINK_AUDIO_STREAM 1
 #endif
 
