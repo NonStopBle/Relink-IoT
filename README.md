@@ -43,7 +43,9 @@ others and the dashboard.
 
 | Package | Folder | Runs on | File |
 |---|---|---|---|
-| **Arduino** | [`arduino/`](arduino) | ESP32, ESP32-S2/S3/C3/C5/C6/P4, ESP8266 | `arduino/RelinkIoT-1.0.7.zip` |
+| **Arduino** | [`arduino/`](arduino) | ESP32, ESP32-S2/S3/C3/C5/C6/P4, ESP8266 | `arduino/RelinkIoT-1.0.8.zip` |
+| **Arduino FastLite** | [`arduino/`](arduino) | same | `arduino/RelinkIoT_FastLite-1.0.8.zip` |
+| **Arduino FastLite NO_OTA** | [`arduino/`](arduino) | same | `arduino/RelinkIoT_FastLite_NO_OTA-1.0.8.zip` |
 | **C++** | [`cpp/`](cpp) | Linux x86_64 (OpenSSL + zlib) | `cpp/relink-1.0.8-linux-x86_64.tar.gz` |
 | **Python** | [`python/`](python) | Linux x86_64, Python 3.8–3.13 | `python/relink_iot-1.0.8-cp3XX-*.whl` (one per Python version) |
 | **Android app** | [`android/`](android) | Android 8.0+ (arm64, armv7, x86_64) | `android/relink-android-1.0.54.apk` (beta) |
@@ -91,7 +93,7 @@ dashboard writes to V1.
 
 <details open><summary><b>Arduino (ESP32 / ESP8266)</b></summary>
 
-1. Download `arduino/RelinkIoT-1.0.7.zip`.
+1. Download `arduino/RelinkIoT-1.0.8.zip`.
 2. In the Arduino IDE: *Sketch → Include Library → Add .ZIP Library…* and pick the zip.
 3. Open *File → Examples → RelinkIoT → BasicSensor*.
 4. Fill in your Wi-Fi, token, and key, then upload.
@@ -99,10 +101,30 @@ dashboard writes to V1.
 **PlatformIO** (`platformio.ini`):
 
 ```ini
-lib_deps = https://github.com/NonStopBle/Relink-IoT/raw/main/arduino/RelinkIoT-1.0.7.zip
+lib_deps = https://github.com/NonStopBle/Relink-IoT/raw/main/arduino/RelinkIoT-1.0.8.zip
 ```
 
 No other libraries are needed: the crypto code is already linked in.
+
+**Short on RAM or flash?** Two smaller packages have the same functions and examples:
+
+| | `RelinkIoT` | `RelinkIoT_FastLite` | `RelinkIoT_FastLite_NO_OTA` |
+|---|---|---|---|
+| `#include` | `<RelinkIoT.h>` | `<RelinkIoT_FastLite.h>` | `<RelinkIoT_FastLite_NO_OTA.h>` |
+| Pin values: web dashboard, app, Python, C++ | ✅ | ✅ (through the server) | ✅ (through the server) |
+| Direct link to the web dashboard (WebRTC) | ✅ | — | — |
+| Direct link to the app, Python, C++, other boards (mesh) | ✅ | ✅ | ✅ |
+| Camera and sound to the Android app, Python, C++ | ✅ | ✅ | ✅ |
+| Camera and sound in the web dashboard | ✅ | — | — |
+| OTA firmware update, `claim()` | ✅ | ✅ | — |
+| Static RAM, ESP32 ¹ | 83,160 B | 65,432 B (−17.7 KB) | 63,776 B (−19.4 KB) |
+| Flash, ESP32 ¹ | 1,099,570 B | 1,015,622 B (−82 KB) | 948,350 B (−148 KB) |
+
+¹ The `BasicSensor` example built for an ESP32 DevKit (Arduino-ESP32 core 3.x). With sound (`audioWrite` / `onAudio`) the numbers are about the same: 82,888 / 65,152 / 63,528 B of RAM.
+
+Camera and sound are always peer-to-peer and never pass through the server. Since
+1.0.8 sound has its own UDP port, so it never waits behind camera frames or pin values.
+Full comparison: [Pick a library](https://relink-iot.com/docs/arduino-fastlite).
 </details>
 
 <details><summary><b>Python</b></summary>
