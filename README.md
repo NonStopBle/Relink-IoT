@@ -43,11 +43,11 @@ others and the dashboard.
 
 | Package | Folder | Runs on | File |
 |---|---|---|---|
-| **Arduino** | [`arduino/`](arduino) | ESP32, ESP32-S2/S3/C3/C5/C6/P4, ESP8266 | `arduino/RelinkIoT-1.0.8.zip` |
-| **Arduino FastLite** | [`arduino/`](arduino) | same | `arduino/RelinkIoT_FastLite-1.0.8.zip` |
-| **Arduino FastLite NO_OTA** | [`arduino/`](arduino) | same | `arduino/RelinkIoT_FastLite_NO_OTA-1.0.8.zip` |
-| **C++** | [`cpp/`](cpp) | Linux x86_64 (OpenSSL + zlib) | `cpp/relink-1.0.8-linux-x86_64.tar.gz` |
-| **Python** | [`python/`](python) | Linux x86_64, Python 3.8–3.13 | `python/relink_iot-1.0.8-cp3XX-*.whl` (one per Python version) |
+| **Arduino** | [`arduino/`](arduino) | ESP32, ESP32-S2/S3/C3/C5/C6/P4, ESP8266 | `arduino/RelinkIoT-1.0.10.zip` |
+| **Arduino FastLite** | [`arduino/`](arduino) | same | `arduino/RelinkIoT_FastLite-1.0.10.zip` |
+| **Arduino FastLite NO_OTA** | [`arduino/`](arduino) | same | `arduino/RelinkIoT_FastLite_NO_OTA-1.0.10.zip` |
+| **C++** | [`cpp/`](cpp) | Linux x86_64 (OpenSSL + zlib) | `cpp/relink-1.0.10-linux-x86_64.tar.gz` |
+| **Python** | [`python/`](python) | Linux x86_64, Python 3.8–3.13 | `python/relink_iot-1.0.10-cp3XX-*.whl` (one per Python version) |
 | **Android app** | [`android/`](android) | Android 8.0+ (arm64, armv7, x86_64) | `android/relink-android-1.0.54.apk` (beta) |
 
 > The libraries are precompiled. The C++ and Python builds are currently for
@@ -93,7 +93,7 @@ dashboard writes to V1.
 
 <details open><summary><b>Arduino (ESP32 / ESP8266)</b></summary>
 
-1. Download `arduino/RelinkIoT-1.0.8.zip`.
+1. Download `arduino/RelinkIoT-1.0.10.zip`.
 2. In the Arduino IDE: *Sketch → Include Library → Add .ZIP Library…* and pick the zip.
 3. Open *File → Examples → RelinkIoT → BasicSensor*.
 4. Fill in your Wi-Fi, token, and key, then upload.
@@ -101,7 +101,7 @@ dashboard writes to V1.
 **PlatformIO** (`platformio.ini`):
 
 ```ini
-lib_deps = https://github.com/NonStopBle/Relink-IoT/raw/main/arduino/RelinkIoT-1.0.8.zip
+lib_deps = https://github.com/NonStopBle/Relink-IoT/raw/main/arduino/RelinkIoT-1.0.10.zip
 ```
 
 No other libraries are needed: the crypto code is already linked in.

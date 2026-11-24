@@ -74,11 +74,28 @@ def grab():
                 cv2.FONT_HERSHEY_SIMPLEX, 1.2, (255, 255, 255), 2)
     return img
 
+def flush_stale():
+    """A webcam keeps ~4 old frames queued while nobody reads it, so the first
+    frames after a viewer joins would be seconds old (lag, then a catch-up).
+    grab() returns at once for a queued frame and blocks for a fresh one."""
+    if cap is None or video:
+        return
+    for _ in range(16):
+        t = time.monotonic()
+        cap.grab()
+        if time.monotonic() - t > 0.008:   # waited for the sensor: this one is live
+            break
+
 # ── 4. Loop: only capture and encode while someone watches ──
 sent, size, last_print = 0, 0, time.monotonic()
+was_watching = False
 while True:
     t0 = time.monotonic()
-    if r.virtual_image_wanted():
+    watching = r.virtual_image_wanted()
+    if watching and not was_watching:
+        flush_stale()
+    was_watching = watching
+    if watching:
         img = grab()
         if img is not None:
             ok, jpeg = cv2.imencode(".jpg", img, [cv2.IMWRITE_JPEG_QUALITY, quality])

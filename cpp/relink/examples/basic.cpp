@@ -6,6 +6,7 @@
 // You'll see:       V0 moving on the dashboard; flip the Toggle and "V1 = 1" prints here.
 #include <relink/relink.hpp>
 #include <chrono>
+#include <cstdlib>
 #include <cmath>
 #include <thread>
 #include "settings.hpp"   // 1. Your settings live here
@@ -13,6 +14,7 @@
 int main() {
     // 2. Connect
     relink::Client r(RELINK_TOKEN_, RELINK_KEY_, RELINK_SERVER_);
+    if (getenv("RELINK_DEBUG")) r.setDebug(true);   // [relink]/[diag] lines on stderr
     r.enableP2P();   // dashboard widgets get V0 over a direct link when they can (needs the key)
 
     // 3. React to writes from the dashboard or another program
