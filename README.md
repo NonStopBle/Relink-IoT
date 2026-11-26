@@ -48,7 +48,7 @@ others and the dashboard.
 | **Arduino FastLite NO_OTA** | [`arduino/`](arduino) | same | `arduino/RelinkIoT_FastLite_NO_OTA-1.0.10.zip` |
 | **C++** | [`cpp/`](cpp) | Linux x86_64 (OpenSSL + zlib) | `cpp/relink-1.0.10-linux-x86_64.tar.gz` |
 | **Python** | [`python/`](python) | Linux x86_64, Python 3.8–3.13 | `python/relink_iot-1.0.10-cp3XX-*.whl` (one per Python version) |
-| **Android app** | [`android/`](android) | Android 8.0+ (arm64, armv7, x86_64) | `android/relink-android-1.0.54.apk` (beta) |
+| **Android app** | [Releases](https://github.com/NonStopBle/Relink-IoT/releases) | Android 8.0+ (arm64, armv7, x86_64) | [relink-android.apk](https://github.com/NonStopBle/Relink-IoT/releases/download/android-latest/relink-android.apk) (beta, newest) |
 
 > The libraries are precompiled. The C++ and Python builds are currently for
 > **Linux x86_64 only**, with Python wheels for **Python 3.8 to 3.13**. Raspberry Pi
@@ -59,10 +59,10 @@ others and the dashboard.
 ## Android app
 
 **Relink for Android** (1.0.54, **beta**): your dashboards on your phone. It is signed by Rezier Labs.
-The app store release is coming soon. Until then, install the beta APK from [`android/`](android) or
+The app store release is coming soon. Until then, install the beta APK from [Releases](https://github.com/NonStopBle/Relink-IoT/releases) or
 [Releases](https://github.com/NonStopBle/Relink-IoT/releases/tag/android-v1.0.54).
 
-- **Download:** [`android/relink-android-1.0.54.apk`](https://github.com/NonStopBle/Relink-IoT/raw/main/android/relink-android-1.0.54.apk), Android 8.0 or newer (arm64, armv7, x86_64)
+- **Download:** [relink-android.apk](https://github.com/NonStopBle/Relink-IoT/releases/download/android-latest/relink-android.apk), Android 8.0 or newer (arm64, armv7, x86_64)
 - **Install:** open the file on the phone and allow *Install unknown apps* for your browser or file manager.
   Sign in with your relink-iot.com account.
 
