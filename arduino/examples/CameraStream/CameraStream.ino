@@ -6,7 +6,7 @@
  * PSRAM:            REQUIRED. Arduino IDE: Tools > PSRAM > "OPI PSRAM" (XIAO ESP32S3 Sense)
  *                   or "Enabled" (ESP32-CAM). Without it the camera fails with
  *                   "frame buffer malloc failed".
- * Build flag:       -DRELINK_CAMERA_STREAM  (see "Needs" below)
+ * Camera support:   built into the installed library on ESP32/S2/S3 (see "Needs" below).
  * Flash:            XIAO ESP32S3 (8 MB): default table is fine. ESP32-CAM (4 MB): use
  *                   RelinkIoT/partitions/relink_4mb_ota.csv, see "ESP32 flash size" in the README.
  * You'll see:       the video in the Live Camera widget, and in camera.py / relink_camera.
@@ -24,12 +24,11 @@
  * fps, ...). You capture; Relink.virtualImageWrite() sends; the settings
  * arrive in RELINK_WRITE(V11) like any other pin.
  *
- * Needs RELINK_CAMERA_STREAM for the library (source build only -- the
- *   precompiled library has it built in on ESP32/S2/S3):
- *   PlatformIO:  build_flags = -DRELINK_CAMERA_STREAM -DBOARD_HAS_PSRAM
- *   Arduino IDE: uncomment "#define RELINK_CAMERA_STREAM" in RelinkIoT.h
- *                (a #define here does not reach the library), and set
- *                Tools > PSRAM to "OPI PSRAM" (XIAO ESP32S3 Sense) or "Enabled" (ESP32-CAM).
+ * Needs: Tools > PSRAM on ("OPI PSRAM" on XIAO ESP32S3 Sense, "Enabled" on ESP32-CAM).
+ *   PlatformIO: build_flags = -DBOARD_HAS_PSRAM.
+ *   The library from the Library Manager already has camera support on ESP32/S2/S3.
+ *   Building the library from source instead: add -DRELINK_CAMERA_STREAM, or
+ *   uncomment "#define RELINK_CAMERA_STREAM" in its RelinkIoT.h.
  * Boards: XIAO ESP32S3 Sense, AI-Thinker ESP32-CAM (pick one below).
  */
 #define CAMERA_MODEL_XIAO_ESP32S3
@@ -42,7 +41,7 @@
 #include "camera_pins.h"
 
 #ifndef RELINK_CAMERA_STREAM
-#error "Build with RELINK_CAMERA_STREAM (see the comment at the top)"
+#error "No camera support: pick an ESP32, ESP32-S2 or ESP32-S3 board (see the comment at the top)"
 #endif
 
 // ── 1. Your settings (from the device page) ──

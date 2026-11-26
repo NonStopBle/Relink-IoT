@@ -10,9 +10,9 @@
  * You'll see:       "[audio] dashboard listening on V0" in the Serial monitor, then the sound in
  *                   the browser. The mic is only read while someone listens. While you hold
  *                   talk: "[talk] level 41 dB, 50 packets/s".
- * Flash:            needs RELINK_AUDIO_STREAM. PlatformIO: build_flags = -DRELINK_AUDIO_STREAM.
- *                   Arduino IDE: uncomment "#define RELINK_AUDIO_STREAM" in RelinkIoT.h.
- *                   Use the bigger OTA partition table (see "ESP32 flash size" in the README).
+ * Sound support:    built into the installed library on every ESP32. Building the
+ *                   library from source: add -DRELINK_AUDIO_STREAM.
+ * Flash:            use the bigger OTA partition table (see "ESP32 flash size" in the README).
  */
 
 #include <WiFi.h>

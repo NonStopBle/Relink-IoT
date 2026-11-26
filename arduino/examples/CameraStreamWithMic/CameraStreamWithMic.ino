@@ -6,9 +6,9 @@
  * Board:            Seeed XIAO ESP32S3 Sense (camera + PDM mic: CLK GPIO42, DATA GPIO41).
  *                   ESP32-CAM has no mic; wire an I2S mic and change the pins to use it.
  * PSRAM:            REQUIRED. Arduino IDE: Tools > PSRAM > "OPI PSRAM".
- * Build flags:      -DRELINK_CAMERA_STREAM -DRELINK_AUDIO_STREAM -DBOARD_HAS_PSRAM
- *                   Arduino IDE: uncomment both #defines in RelinkIoT.h (a #define here
- *                   does not reach the library).
+ * Camera + sound:   built into the installed library for the XIAO ESP32S3.
+ *                   PlatformIO: build_flags = -DBOARD_HAS_PSRAM. Building the library
+ *                   from source: also -DRELINK_CAMERA_STREAM -DRELINK_AUDIO_STREAM.
  * Flash:            XIAO ESP32S3 (8 MB): RelinkIoT/partitions/relink_4mb_ota.csv works.
  * Speaker (option): an I2S amp such as MAX98357: set SPK_BCLK / SPK_LRC / SPK_DIN below.
  * You'll see:       video in the camera widget, sound in the audio widget. The camera is
@@ -34,7 +34,7 @@
 #include "camera_pins.h"
 
 #if !defined(RELINK_CAMERA_STREAM) || !defined(RELINK_AUDIO_STREAM)
-#error "Build with RELINK_CAMERA_STREAM and RELINK_AUDIO_STREAM (see the comment at the top)"
+#error "No camera or sound support: pick an ESP32-S3 board such as the XIAO ESP32S3 (see the comment at the top)"
 #endif
 
 // ── 1. Your settings (from the device page) ──
