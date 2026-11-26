@@ -58,9 +58,9 @@ others and the dashboard.
 
 ## Android app
 
-**Relink for Android** (1.0.54, **beta**): your dashboards on your phone. It is signed by Rezier Labs.
+**Relink for Android** (1.0.59, **beta**): your dashboards on your phone. It is signed by Rezier Labs.
 The app store release is coming soon. Until then, install the beta APK from [Releases](https://github.com/NonStopBle/Relink-IoT/releases) or
-[Releases](https://github.com/NonStopBle/Relink-IoT/releases/tag/android-v1.0.54).
+[Releases](https://github.com/NonStopBle/Relink-IoT/releases/tag/android-v1.0.59).
 
 - **Download:** [relink-android.apk](https://github.com/NonStopBle/Relink-IoT/releases/download/android-latest/relink-android.apk), Android 8.0 or newer (arm64, armv7, x86_64)
 - **Install:** open the file on the phone and allow *Install unknown apps* for your browser or file manager.
