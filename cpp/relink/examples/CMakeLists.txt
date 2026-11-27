@@ -1,6 +1,6 @@
 # Builds the examples against the precompiled library in ../lib:
 #   cmake -S . -B build && cmake --build build      (-DRELINK_STATIC=ON for librelink.a)
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.10)
 project(relink_examples CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(relink_DIR "${CMAKE_CURRENT_LIST_DIR}/../lib/cmake/relink")

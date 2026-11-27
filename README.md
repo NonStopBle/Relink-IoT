@@ -11,6 +11,7 @@
 
 <p align="center">
   <a href="https://relink-iot.com">Website</a> ·
+  <a href="#download">Download</a> ·
   <a href="#android-app">Android app</a> ·
   <a href="#quick-start">Quick start</a> ·
   <a href="#examples">Examples</a> ·
@@ -41,20 +42,66 @@ others and the dashboard.
 
 ## Download
 
-| Package | Folder | Runs on | File |
-|---|---|---|---|
-| **Arduino** | [`arduino/`](arduino) | ESP32, ESP32-S2/S3/C3/C5/C6/P4, ESP8266 | `arduino/RelinkIoT-1.0.11.zip` |
-| **Arduino FastLite** | [`arduino/`](arduino) | same | `arduino/RelinkIoT_FastLite-1.0.11.zip` |
-| **Arduino FastLite NO_OTA** | [`arduino/`](arduino) | same | `arduino/RelinkIoT_FastLite_NO_OTA-1.0.11.zip` |
-| **C++** | [`cpp/`](cpp) | Linux x86_64 (OpenSSL + zlib) | `cpp/relink-1.0.10-linux-x86_64.tar.gz` |
-| **Python** | [`python/`](python) | Linux x86_64, Python 3.8–3.13 | `python/relink_iot-1.0.10-cp3XX-*.whl` (one per Python version) |
-| **Android app** | [Releases](https://github.com/NonStopBle/Relink-IoT/releases) | Android 8.0+ (arm64, armv7, x86_64) | [relink-android.apk](https://github.com/NonStopBle/Relink-IoT/releases/download/android-latest/relink-android.apk) (beta, newest) |
+**Which one is mine?** Run `uname -m` on the computer: it prints `x86_64`, `aarch64` or `armv7l`.
+ESP32 / ESP8266 boards use the Arduino library, whatever computer you program them from.
 
-> The libraries are precompiled. The C++ and Python builds are currently for
-> **Linux x86_64 only**, with Python wheels for **Python 3.8 to 3.13**. Raspberry Pi
-> (arm64) and macOS builds are coming.
-> **ESP8266:** builds and runs the examples, but hasn't been tested on a real board yet.
-> ESP32 is tested on hardware.
+### Arduino (ESP32, ESP8266)
+
+| Library | Runs on | Download |
+|---|---|---|
+| **RelinkIoT** | ESP32, ESP32-S2/S3/C3/C5/C6/P4, ESP8266 | Arduino IDE *Library Manager*, search **RelinkIoT** · or [`arduino/RelinkIoT-1.0.11.zip`](arduino) |
+| **RelinkIoT FastLite** | same | [`arduino/RelinkIoT_FastLite-1.0.11.zip`](arduino) |
+| **RelinkIoT FastLite NO_OTA** | same | [`arduino/RelinkIoT_FastLite_NO_OTA-1.0.11.zip`](arduino) |
+
+### Linux x86_64
+
+Most PCs, laptops and servers (Intel / AMD).
+
+| Library | Download |
+|---|---|
+| **C++** 1.0.10 | [glibc](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink-1.0.10-linux-x86_64.tar.gz) · [Alpine (musl)](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink-1.0.10-linux-musl-x86_64.tar.gz) |
+| **Python** 1.0.10 (pick your Python) | [3.8](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_iot-1.0.10-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl) · [3.9](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_iot-1.0.10-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl) · [3.10](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_iot-1.0.10-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl) · [3.11](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_iot-1.0.10-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl) · [3.12](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_iot-1.0.10-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl) · [3.13](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_iot-1.0.10-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl) |
+
+### Linux ARM64 (aarch64)
+
+Raspberry Pi 3/4/5 with 64-bit OS, NVIDIA Jetson, ARM servers.
+
+| Library | Download |
+|---|---|
+| **C++** 1.0.10 | [glibc](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink-1.0.10-linux-aarch64.tar.gz) · [Alpine (musl)](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink-1.0.10-linux-musl-aarch64.tar.gz) |
+| **Python** 1.0.10 (pick your Python) | [3.8](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_iot-1.0.10-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl) · [3.9](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_iot-1.0.10-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl) · [3.10](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_iot-1.0.10-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl) · [3.11](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_iot-1.0.10-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl) · [3.12](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_iot-1.0.10-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl) · [3.13](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_iot-1.0.10-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl) |
+
+### Linux ARMv7 (armv7l)
+
+Raspberry Pi with 32-bit Raspberry Pi OS, older ARM boards.
+
+| Library | Download |
+|---|---|
+| **C++** 1.0.10 | [glibc](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink-1.0.10-linux-armv7l.tar.gz) · [Alpine (musl)](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink-1.0.10-linux-musl-armv7l.tar.gz) |
+| **Python** 1.0.10 (pick your Python) | [3.8](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_iot-1.0.10-cp38-cp38-manylinux_2_17_armv7l.manylinux2014_armv7l.manylinux_2_31_armv7l.whl) · [3.9](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_iot-1.0.10-cp39-cp39-manylinux_2_17_armv7l.manylinux2014_armv7l.manylinux_2_31_armv7l.whl) · [3.10](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_iot-1.0.10-cp310-cp310-manylinux_2_17_armv7l.manylinux2014_armv7l.manylinux_2_31_armv7l.whl) · [3.11](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_iot-1.0.10-cp311-cp311-manylinux_2_17_armv7l.manylinux2014_armv7l.manylinux_2_31_armv7l.whl) · [3.12](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_iot-1.0.10-cp312-cp312-manylinux_2_17_armv7l.manylinux2014_armv7l.manylinux_2_31_armv7l.whl) · [3.13](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_iot-1.0.10-cp313-cp313-manylinux_2_17_armv7l.manylinux2014_armv7l.manylinux_2_31_armv7l.whl) |
+
+- **C++:** *glibc* = Ubuntu 18.04+, Debian 10+, Raspberry Pi OS, Fedora, Jetson. *Alpine (musl)* = Alpine Linux. OpenSSL, zlib and mbedTLS are built in: nothing else to install.
+- **Python:** 3.8 to 3.13. Or let pip pick the right file for you:
+  ```bash
+  pip install relink_iot --find-links https://github.com/NonStopBle/Relink-IoT/releases/expanded_assets/v1.0.10
+  ```
+  On ARMv7, install `cryptography` from your system first (`sudo apt install python3-cryptography`); pip has no ARMv7 build of it.
+
+### ROS examples
+
+| ROS | Download |
+|---|---|
+| ROS 1 Noetic | [relink_ros-1.0.10.tar.gz](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_ros-1.0.10.tar.gz) |
+| ROS 2 Humble | [relink_ros2-1.0.10.tar.gz](https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink_ros2-1.0.10.tar.gz) |
+
+Unpack in your workspace's `src/` folder. Needs the C++ or Python library above. Guide: [relink-iot.com/docs/ros](https://relink-iot.com/docs/ros).
+
+### Android
+
+Android 8.0+ (arm64, armv7, x86_64): [relink-android.apk](https://github.com/NonStopBle/Relink-IoT/releases/download/android-latest/relink-android.apk) (beta, newest).
+
+Every file is also on the [releases page](https://github.com/NonStopBle/Relink-IoT/releases).
+macOS builds are coming. **ESP8266:** builds and runs the examples, but hasn't been tested on a real board yet. ESP32 is tested on hardware.
 
 ## Android app
 
@@ -131,8 +178,7 @@ Full comparison: [Pick a library](https://relink-iot.com/docs/arduino-fastlite).
 
 ```bash
 git clone https://github.com/NonStopBle/Relink-IoT.git && cd Relink-IoT
-pip install cryptography
-pip install --no-index --no-deps --find-links python/ relink_iot   # picks the wheel for your Python
+pip install relink_iot --find-links https://github.com/NonStopBle/Relink-IoT/releases/expanded_assets/v1.0.10
 
 export RELINK_TOKEN=your-token RELINK_KEY=your-key RELINK_SERVER=relink-iot.com
 python3 python/examples/basic.py
@@ -142,10 +188,11 @@ python3 python/examples/basic.py
 <details><summary><b>C++ (Linux)</b></summary>
 
 ```bash
-sudo apt install build-essential cmake libssl-dev zlib1g-dev
-git clone https://github.com/NonStopBle/Relink-IoT.git && cd Relink-IoT
+sudo apt install build-essential cmake
+wget https://github.com/NonStopBle/Relink-IoT/releases/download/v1.0.10/relink-1.0.10-linux-$(uname -m).tar.gz
+tar xzf relink-1.0.10-linux-$(uname -m).tar.gz
 
-cmake -S cpp/relink/examples -B build && cmake --build build
+cmake -S relink/examples -B build && cmake --build build
 export RELINK_TOKEN=your-token RELINK_KEY=your-key RELINK_SERVER=relink-iot.com
 ./build/relink_basic
 ```
@@ -153,7 +200,7 @@ export RELINK_TOKEN=your-token RELINK_KEY=your-key RELINK_SERVER=relink-iot.com
 To use it in your own CMake project:
 
 ```cmake
-set(relink_DIR /path/to/Relink-IoT/cpp/relink/lib/cmake/relink)
+set(relink_DIR /path/to/relink/lib/cmake/relink)
 find_package(relink REQUIRED)
 target_link_libraries(my_app relink::relink)   # -DRELINK_STATIC=ON links librelink.a
 ```
